@@ -57,183 +57,271 @@ export function SmartRecommendations({ intelligence }: SmartRecommendationsProps
   const { whatNext, todaysFocus, confirmedWeaknesses, possibleWeaknesses, relevantProject } = intelligence;
 
   return (
-    <div className="space-y-6">
-      {/* Today's Recommended Action Banner */}
-      <div className="bg-[#171c23] border border-[#252b34] rounded-xl p-6 shadow-sm">
-        <div className="flex items-center justify-between border-b border-[#252b34] pb-3.5 mb-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-lg bg-[#12161c] border border-[#252b34] flex items-center justify-center">
-              <Compass className="w-4 h-4 text-emerald-400" />
-            </div>
-            <span className="text-[#f5f7fa] font-semibold text-xs uppercase tracking-wider">
-              Today's Recommended Action
+    <div className="space-y-5">
+      {/* Grid: Focus Steps + Session Planner */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Today's Focus Steps */}
+        <div
+          className="p-5 space-y-3"
+          style={{
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+          }}
+        >
+          <div
+            className="flex items-center justify-between pb-3"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <span className="section-label flex items-center gap-1.5">
+              <Target className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+              Today's Focus
+            </span>
+            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              Curriculum Stage
             </span>
           </div>
-          <span className="text-[11px] text-[#9aa3af] bg-[#12161c] px-2.5 py-1 rounded-md border border-[#252b34] font-medium flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            Recommended Step
-          </span>
-        </div>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1 max-w-3xl">
-            <h4 className="text-base lg:text-lg font-semibold text-[#f5f7fa] tracking-tight">{whatNext.title}</h4>
-            <p className="text-xs text-[#9aa3af] leading-relaxed">{whatNext.description}</p>
-          </div>
-
-          <Link
-            href={whatNext.taskId ? `/roadmap/task/${whatNext.taskId}` : '/roadmap'}
-            className="px-5 py-2.5 bg-[#f5f7fa] hover:bg-white text-[#08090c] text-xs font-semibold rounded-lg transition whitespace-nowrap flex items-center justify-center gap-2 shrink-0 border border-white/20"
-          >
-            <span>Continue Learning</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Grid: Today's Roadmap Focus & Study Time Planner */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Today's Focus Step Plan */}
-        <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
-            <h4 className="text-xs font-semibold text-[#f5f7fa] uppercase tracking-wider flex items-center gap-2">
-              <Target className="w-4 h-4 text-emerald-400" />
-              Today's Focus
-            </h4>
-            <span className="text-[11px] text-[#66707c]">Curriculum Stage</span>
-          </div>
-
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {todaysFocus.map((f, idx) => (
-              <div key={idx} className="p-3 bg-[#171c23] rounded-lg border border-[#252b34] flex items-start space-x-3">
-                <span className="text-xs font-semibold text-[#f5f7fa] whitespace-nowrap mt-0.5 bg-[#12161c] px-2 py-0.5 rounded border border-[#252b34]">
+              <div
+                key={idx}
+                className="flex items-start gap-3 px-3 py-2.5"
+                style={{
+                  background: 'var(--surface-0)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '4px',
+                }}
+              >
+                <span
+                  className="text-[10px] font-semibold mt-0.5 whitespace-nowrap px-1.5 py-0.5"
+                  style={{
+                    background: 'var(--accent-bg)',
+                    color: 'var(--accent)',
+                    borderRadius: '3px',
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                >
                   {f.stage}
                 </span>
-                <span className="text-xs text-[#9aa3af] leading-relaxed">{f.detail}</span>
+                <span className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  {f.detail}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Study-Time Session Planner */}
-        <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
-            <h4 className="text-xs font-semibold text-[#f5f7fa] uppercase tracking-wider flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#9aa3af]" />
+        {/* Session Planner */}
+        <div
+          className="p-5 space-y-3"
+          style={{
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+          }}
+        >
+          <div
+            className="flex items-center justify-between pb-3"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <span className="section-label flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
               Session Planner
-            </h4>
-            <span className="text-[11px] text-[#66707c]">Available Time</span>
+            </span>
+            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              Pick available time
+            </span>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             {[30, 60, 120].map((mins) => (
               <button
                 key={mins}
                 onClick={() => handleSelectTime(mins)}
                 disabled={isPending}
-                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition border ${
-                  selectedMinutes === mins
-                    ? 'bg-[#171c23] text-[#f5f7fa] border-[#374151]'
-                    : 'bg-[#0d1015] text-[#9aa3af] border-[#252b34] hover:bg-[#171c23]'
-                }`}
+                className="flex-1 py-2 text-xs font-semibold transition"
+                style={{
+                  borderRadius: '4px',
+                  background: selectedMinutes === mins ? 'var(--accent-bg)' : 'var(--surface-0)',
+                  color: selectedMinutes === mins ? 'var(--accent)' : 'var(--text-muted)',
+                  border: `1px solid ${selectedMinutes === mins ? 'var(--accent)' : 'var(--border)'}`,
+                  fontFamily: 'var(--font-mono)',
+                }}
               >
-                {mins} Mins
+                {mins}m
               </button>
             ))}
           </div>
 
           {timePlan ? (
-            <div className="space-y-2 pt-2 border-t border-[#252b34]">
-              <span className="text-[11px] text-[#f5f7fa] font-medium block">
-                {timePlan.availableMinutes}-Minute Time-Blocked Agenda:
+            <div className="space-y-1.5 pt-2" style={{ borderTop: '1px solid var(--border)' }}>
+              <span className="text-[10px] font-medium block" style={{ color: 'var(--text-secondary)' }}>
+                {timePlan.availableMinutes}-min time-blocked plan:
               </span>
-              <div className="space-y-1.5">
-                {timePlan.blocks.map((b, idx) => (
-                  <div key={idx} className="p-2.5 bg-[#171c23] rounded-lg border border-[#252b34] flex items-center justify-between text-xs">
-                    <span className="text-[#9aa3af]">{b.activity}</span>
-                    <span className="text-[#f5f7fa] font-semibold whitespace-nowrap ml-2">{b.time}</span>
-                  </div>
-                ))}
-              </div>
+              {timePlan.blocks.map((b, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between px-2.5 py-2 text-xs"
+                  style={{
+                    background: 'var(--surface-0)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '4px',
+                  }}
+                >
+                  <span style={{ color: 'var(--text-secondary)' }}>{b.activity}</span>
+                  <span
+                    className="font-semibold ml-2"
+                    style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+                  >
+                    {b.time}
+                  </span>
+                </div>
+              ))}
             </div>
           ) : (
-            <div className="py-6 text-center text-xs text-[#66707c] border border-dashed border-[#252b34] rounded-lg bg-[#0d1015]/50">
-              Select a time block (30m, 60m, 120m) to view a recommended study session agenda.
+            <div
+              className="py-5 text-center text-[10px]"
+              style={{
+                color: 'var(--text-muted)',
+                border: '1px dashed var(--border)',
+                borderRadius: '4px',
+              }}
+            >
+              Select 30m, 60m, or 120m to generate a study agenda.
             </div>
           )}
         </div>
       </div>
 
-      {/* Topics to Review & Active Project Integration */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Topics to Review + Active Project */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Topics to Review */}
-        <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 space-y-3">
-          <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
-            <h4 className="text-xs font-semibold text-[#f5f7fa] uppercase tracking-wider flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
+        <div
+          className="p-5 space-y-3"
+          style={{
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+          }}
+        >
+          <div
+            className="flex items-center justify-between pb-3"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <span className="section-label flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5" style={{ color: 'var(--priority-important)' }} />
               Topics to Review
-            </h4>
-            <span className="text-[11px] text-[#9aa3af]">Assessment Audit</span>
+            </span>
+            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              Assessment Audit
+            </span>
           </div>
 
           {confirmedWeaknesses.length === 0 && possibleWeaknesses.length === 0 ? (
-            <div className="p-4 bg-[#171c23] border border-[#252b34] rounded-lg text-xs text-[#9aa3af] flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>All completed topics are assessment verified!</span>
+            <div
+              className="px-3 py-2.5 flex items-center gap-2 text-xs"
+              style={{
+                background: 'var(--surface-0)',
+                border: '1px solid var(--border)',
+                borderRadius: '4px',
+              }}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--status-completed)' }} />
+              <span style={{ color: 'var(--text-secondary)' }}>All completed topics are verified!</span>
             </div>
           ) : (
             <div className="space-y-2">
               {confirmedWeaknesses.map((w) => (
-                <div key={w.taskId} className="p-3 bg-[#171c23] border border-rose-900/40 rounded-lg text-xs space-y-1">
-                  <div className="flex items-center justify-between font-semibold text-rose-300">
-                    <span className="flex items-center gap-1.5">
-                      <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
-                      Needs Review: {w.title}
-                    </span>
+                <div
+                  key={w.taskId}
+                  className="px-3 py-2.5 text-xs space-y-1"
+                  style={{
+                    background: 'var(--priority-master-bg)',
+                    border: '1px solid rgba(226,75,74,0.2)',
+                    borderRadius: '4px',
+                  }}
+                >
+                  <div className="flex items-center gap-1.5 font-semibold" style={{ color: 'var(--priority-master)' }}>
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    Needs Review: {w.title}
                   </div>
-                  <p className="text-[11px] text-[#9aa3af] pl-5">{w.reason}</p>
+                  <p className="pl-5 text-[10px]" style={{ color: 'var(--text-secondary)' }}>{w.reason}</p>
                 </div>
               ))}
-
               {possibleWeaknesses.map((w) => (
-                <div key={w.taskId} className="p-3 bg-[#171c23] border border-amber-900/40 rounded-lg text-xs space-y-1">
-                  <div className="flex items-center justify-between font-semibold text-amber-300">
-                    <span className="flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                      Recommended Review: {w.title}
-                    </span>
+                <div
+                  key={w.taskId}
+                  className="px-3 py-2.5 text-xs space-y-1"
+                  style={{
+                    background: 'var(--priority-important-bg)',
+                    border: '1px solid rgba(239,159,39,0.2)',
+                    borderRadius: '4px',
+                  }}
+                >
+                  <div className="flex items-center gap-1.5 font-semibold" style={{ color: 'var(--priority-important)' }}>
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    Recommended Review: {w.title}
                   </div>
-                  <p className="text-[11px] text-[#9aa3af] pl-5">{w.reason}</p>
+                  <p className="pl-5 text-[10px]" style={{ color: 'var(--text-secondary)' }}>{w.reason}</p>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Project Integration */}
-        <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 space-y-3">
-          <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
-            <h4 className="text-xs font-semibold text-[#f5f7fa] uppercase tracking-wider flex items-center gap-2">
-              <FolderKanban className="w-4 h-4 text-emerald-400" />
-              Active Project Integration
-            </h4>
-            <span className="text-[11px] text-[#9aa3af]">
+        {/* Active Project */}
+        <div
+          className="p-5 space-y-3"
+          style={{
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+          }}
+        >
+          <div
+            className="flex items-center justify-between pb-3"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <span className="section-label flex items-center gap-1.5">
+              <FolderKanban className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
+              Active Project
+            </span>
+            <span className="text-[10px]" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
               Project {relevantProject.projectNumber}
             </span>
           </div>
 
-          <div className="bg-[#171c23] p-4 rounded-lg border border-[#252b34] space-y-2">
-            <h5 className="font-semibold text-sm text-[#f5f7fa]">{relevantProject.title}</h5>
-            <p className="text-xs text-[#9aa3af] leading-relaxed">{relevantProject.description}</p>
+          <div
+            className="p-4 space-y-2"
+            style={{
+              background: 'var(--surface-0)',
+              border: '1px solid var(--border)',
+              borderRadius: '4px',
+            }}
+          >
+            <h5 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+              {relevantProject.title}
+            </h5>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              {relevantProject.description}
+            </p>
             {relevantProject.techStack && (
-              <span className="text-[11px] text-[#66707c] block mt-1">
-                Tech: {relevantProject.techStack}
+              <span
+                className="text-[10px] block mt-1"
+                style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+              >
+                {relevantProject.techStack}
               </span>
             )}
-            <div className="pt-2 border-t border-[#252b34] mt-3">
-              <Link href="/projects" className="text-xs text-[#f5f7fa] hover:text-white flex items-center gap-1 font-semibold">
-                <span>View Portfolio Projects</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#9aa3af]" />
+            <div className="pt-2" style={{ borderTop: '1px solid var(--border)', marginTop: '8px' }}>
+              <Link
+                href="/projects"
+                className="flex items-center gap-1 text-xs font-semibold transition"
+                style={{ color: 'var(--accent)' }}
+              >
+                View Portfolio Projects
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
@@ -242,5 +330,3 @@ export function SmartRecommendations({ intelligence }: SmartRecommendationsProps
     </div>
   );
 }
-
-

@@ -2,85 +2,130 @@
 
 @layer base {
   :root {
-    --background: #08090c;
-    --background-subtle: #0d1015;
-    --surface: #12161c;
-    --surface-elevated: #171c23;
-    --border: #252b34;
-    --foreground: #f5f7fa;
-    --foreground-secondary: #9aa3af;
-    --foreground-muted: #66707c;
+    --surface-0: #0a0a0b;
+    --surface-1: #141416;
+    --border: #26262a;
+    --border-strong: #38383e;
+    --text-primary: #f2f2f0;
+    --text-secondary: #a3a3a8;
+    --text-muted: #6b6b70;
+    --accent: #7f77dd;
+    --accent-bg: rgba(127, 119, 221, 0.1);
+
+    --priority-master: #e24b4a;
+    --priority-master-bg: rgba(226, 75, 74, 0.1);
+    --priority-important: #ef9f27;
+    --priority-important-bg: rgba(239, 159, 39, 0.1);
+    --priority-basics: #639922;
+    --priority-basics-bg: rgba(99, 153, 34, 0.1);
+
+    --status-not-started: #6b6b70;
+    --status-in-progress: #ef9f27;
+    --status-completed: #639922;
+    --status-needs-revision: #e24b4a;
   }
 }
 
 body {
-  background-color: #08090c;
-  color: #f5f7fa;
-  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif);
+  background-color: var(--surface-0);
+  color: var(--text-primary);
+  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Sleek Minimal Scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-::-webkit-scrollbar-track {
-  background: #08090c;
-}
-::-webkit-scrollbar-thumb {
-  background: #252b34;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+/* Mono accents — stat numbers, durations, tags */
+.font-mono,
+[class*="font-mono"] {
+  font-family: var(--font-mono, ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace);
 }
 
-/* Surface & Card Design Tokens */
+/* Thin scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--surface-0); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #4a4a50; }
+
+/* Card design tokens — radius 4px per spec */
 .os-surface {
-  background-color: #12161c;
-  border: 1px solid #252b34;
-  border-radius: 0.75rem;
+  background-color: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 
 .os-surface-elevated {
-  background-color: #171c23;
-  border: 1px solid #252b34;
-  border-radius: 0.75rem;
+  background-color: #1c1c1f;
+  border: 1px solid var(--border);
+  border-radius: 4px;
 }
 
 .os-surface-hover {
-  transition: all 0.2s ease-in-out;
+  transition: border-color 0.15s ease;
 }
 .os-surface-hover:hover {
-  border-color: #374151;
-  background-color: #171c23;
+  border-color: var(--border-strong);
 }
 
-/* Status Badges */
-.os-badge-neutral {
-  background: rgba(154, 163, 175, 0.1);
-  color: #9aa3af;
-  border: 1px solid rgba(154, 163, 175, 0.2);
+/* Priority tag pills */
+.tag-master {
+  background: var(--priority-master-bg);
+  color: var(--priority-master);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
 }
 
-.os-badge-success {
-  background: rgba(16, 185, 129, 0.1);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+.tag-important {
+  background: var(--priority-important-bg);
+  color: var(--priority-important);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
 }
 
-.os-badge-warning {
-  background: rgba(245, 158, 11, 0.1);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.2);
+.tag-basics {
+  background: var(--priority-basics-bg);
+  color: var(--priority-basics);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
 }
 
-.os-badge-danger {
-  background: rgba(239, 68, 68, 0.1);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+/* Status solid pill — visually distinct from priority tags (rounded-full) */
+.status-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
 }
 
+/* Section label style */
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
 
+/* Progress bar standard */
+.progress-bar-track {
+  background: var(--border);
+  border-radius: 9999px;
+  height: 3px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 3px;
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}

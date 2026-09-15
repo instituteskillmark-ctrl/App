@@ -8,21 +8,43 @@ interface HeaderProps {
 
 export function Header({ title, subtitle }: HeaderProps) {
   return (
-    <header className="border-b border-[#252b34] bg-[#0d1015]/95 backdrop-blur-md px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-20">
+    <header
+      className="px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-20"
+      style={{
+        background: 'rgba(10,10,11,0.95)',
+        borderBottom: '1px solid var(--border)',
+        backdropFilter: 'blur(8px)',
+      }}
+    >
       <div>
-        <h2 className="text-lg lg:text-xl font-semibold text-[#f5f7fa] tracking-tight">
+        <h2
+          className="text-lg lg:text-xl font-semibold tracking-tight"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {title}
         </h2>
-        {subtitle && <p className="text-xs text-[#9aa3af] mt-0.5">{subtitle}</p>}
+        {subtitle && (
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+            {subtitle}
+          </p>
+        )}
       </div>
-      <div className="flex items-center space-x-3 shrink-0">
-        <div className="flex items-center space-x-2 text-xs text-[#9aa3af] bg-[#12161c] px-3 py-1.5 rounded-lg border border-[#252b34]">
-          <Activity className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="font-medium text-[#f5f7fa]">Phase 1 Active</span>
+      <div className="flex items-center gap-2 shrink-0">
+        <div
+          className="flex items-center gap-2 text-xs px-3 py-1.5"
+          style={{
+            background: 'var(--surface-1)',
+            border: '1px solid var(--border)',
+            borderRadius: '4px',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <Activity className="w-3.5 h-3.5" style={{ color: 'var(--status-completed)' }} />
+          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+            Phase 1 Active
+          </span>
         </div>
       </div>
     </header>
   );
 }
-
-

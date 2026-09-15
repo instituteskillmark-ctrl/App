@@ -1,7 +1,7 @@
 import React from 'react';
 import { Header } from '@/components/Header';
 import { getDashboardStats } from '@/lib/services/dashboard';
-import { TaskDetailView } from '@/components/TaskDetailView';
+import { CurrentTaskHero } from '@/components/CurrentTaskHero';
 import { db } from '@/db';
 import { subtasks, taskProgress, notes } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -54,81 +54,88 @@ export default async function TodayPage() {
 
   return (
     <div className="flex-1 pb-16">
-      <Header
-        title="Today's Focus"
-        subtitle="Daily Execution & Active Learning Task"
-      />
+      <Header title="Today's Focus" subtitle="Daily Execution & Active Learning Task" />
 
       <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+        {/* ── Single merged CurrentTaskHero component ── */}
         {targetTaskWithDetails ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
-              <h3 className="text-xs font-semibold text-[#f5f7fa] uppercase tracking-wider flex items-center gap-2">
-                <Target className="w-4 h-4 text-emerald-400" />
-                Active Roadmap Task
-              </h3>
-              <Link
-                href={`/roadmap/task/${targetTaskWithDetails.id}`}
-                className="text-xs text-[#f5f7fa] hover:text-white flex items-center gap-1 font-semibold"
-              >
-                <span>Full Task View</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#9aa3af]" />
-              </Link>
-            </div>
-
-            <TaskDetailView task={targetTaskWithDetails as any} />
-          </div>
+          <CurrentTaskHero task={targetTaskWithDetails as any} />
         ) : (
-          <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-8 lg:p-12 text-center space-y-4 shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-[#171c23] border border-[#252b34] flex items-center justify-center text-emerald-400 mx-auto">
-              <Target className="w-6 h-6" />
-            </div>
+          <div
+            className="os-surface p-8 lg:p-12 text-center space-y-4"
+          >
+            <Target className="w-8 h-8 mx-auto" style={{ color: 'var(--text-muted)' }} />
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold text-[#f5f7fa]">No active topic selected</h3>
-              <p className="text-xs text-[#9aa3af] max-w-md mx-auto">
+              <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                No active topic selected
+              </h3>
+              <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
                 Choose a topic from your 26-week roadmap to activate today's learning workspace.
               </p>
             </div>
-            <div className="pt-2">
-              <Link
-                href="/roadmap"
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#f5f7fa] hover:bg-white text-[#08090c] text-xs font-semibold rounded-lg transition"
-              >
-                <span>Explore Roadmap Topics</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+            <Link
+              href="/roadmap"
+              className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-semibold transition"
+              style={{ background: 'var(--accent)', color: '#fff', borderRadius: '4px' }}
+            >
+              <span>Explore Roadmap Topics</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         )}
 
         {/* Weekly Routine Schedule */}
-        <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 space-y-4 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#252b34] pb-3 gap-2">
-            <h3 className="text-xs font-semibold text-[#f5f7fa] uppercase tracking-wider flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-emerald-400" />
-              Weekly Schedule (2–3 hrs/day routine)
-            </h3>
-            <span className="text-[11px] text-[#66707c]">Consistent Study Plan</span>
+        <div className="os-surface p-5 space-y-4">
+          <div
+            className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 gap-2"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <span className="section-label flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+              Weekly Schedule
+            </span>
+            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              2–3 hrs/day routine
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
             {dailySchedule.map((s) => {
               const Icon = s.icon;
+              const isRest = s.day === 'Sun';
               return (
                 <div
                   key={s.day}
-                  className={`p-3.5 rounded-xl border text-center space-y-2 transition ${
-                    s.day === 'Sun'
-                      ? 'bg-emerald-950/20 border-emerald-800/40 text-emerald-300'
-                      : 'bg-[#171c23] border-[#252b34] text-[#f5f7fa] hover:border-[#374151]'
-                  }`}
+                  className="p-3 space-y-2 text-center"
+                  style={{
+                    background: isRest ? 'rgba(127,119,221,0.06)' : 'var(--surface-0)',
+                    border: `1px solid ${isRest ? 'rgba(127,119,221,0.2)' : 'var(--border)'}`,
+                    borderRadius: '4px',
+                  }}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase text-[#9aa3af]">{s.day}</span>
-                    <Icon className={`w-3.5 h-3.5 ${s.day === 'Sun' ? 'text-emerald-400' : 'text-[#9aa3af]'}`} />
+                    <span
+                      className="text-[10px] font-semibold uppercase"
+                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                    >
+                      {s.day}
+                    </span>
+                    <Icon
+                      className="w-3 h-3"
+                      style={{ color: isRest ? 'var(--accent)' : 'var(--text-muted)' }}
+                    />
                   </div>
-                  <div className="text-xs font-semibold tracking-tight text-[#f5f7fa]">{s.activity}</div>
-                  <div className="text-[11px] text-[#66707c] pt-1 border-t border-[#252b34]">
+                  <div className="text-[10px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    {s.activity}
+                  </div>
+                  <div
+                    className="text-[10px] pt-1"
+                    style={{
+                      borderTop: '1px solid var(--border)',
+                      color: 'var(--text-muted)',
+                      fontFamily: 'var(--font-mono)',
+                    }}
+                  >
                     {s.duration}
                   </div>
                 </div>
@@ -140,5 +147,3 @@ export default async function TodayPage() {
     </div>
   );
 }
-
-

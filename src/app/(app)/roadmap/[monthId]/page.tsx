@@ -6,7 +6,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TopicStatusButton } from '@/components/TopicStatusButton';
-import { ArrowLeft, Clock, Target, CheckSquare, ChevronRight, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Clock, Target, CheckSquare, ArrowRight } from 'lucide-react';
 
 export const revalidate = 0;
 
@@ -22,7 +22,7 @@ export default async function MonthDetailPage({ params }: PageProps) {
   const data = await getMonthDetails(monthNumber);
   if (!data) return notFound();
 
-  const { month, weeks, tasks } = data;
+  const { month, tasks } = data;
 
   return (
     <div className="flex-1 pb-16">
@@ -31,92 +31,144 @@ export default async function MonthDetailPage({ params }: PageProps) {
         subtitle={`Target Deliverable: ${month.keyOutput}`}
       />
 
-      <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+      <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+        {/* Back + duration bar */}
         <div className="flex items-center justify-between">
           <Link
             href="/roadmap"
-            className="text-xs text-[#9aa3af] hover:text-[#f5f7fa] flex items-center gap-1.5 transition"
+            className="flex items-center gap-1.5 text-xs font-medium transition"
+            style={{ color: 'var(--text-secondary)' }}
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to All Roadmap Months</span>
+            Back to Roadmap
           </Link>
-          <div className="text-xs text-[#9aa3af] flex items-center gap-1.5 bg-[#12161c] px-3 py-1.5 rounded-lg border border-[#252b34]">
-            <Clock className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Duration: <strong className="text-[#f5f7fa]">{month.durationWeeks}</strong></span>
+          <div
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5"
+            style={{
+              background: 'var(--surface-1)',
+              border: '1px solid var(--border)',
+              borderRadius: '4px',
+              color: 'var(--text-secondary)',
+            }}
+          >
+            <Clock className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
+            <span>
+              Duration:{' '}
+              <strong style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+                {month.durationWeeks}
+              </strong>
+            </span>
           </div>
         </div>
 
-        {/* Topics List */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
-            <h3 className="text-xs font-semibold text-[#f5f7fa] uppercase tracking-wider flex items-center gap-2">
-              <Target className="w-4 h-4 text-emerald-400" />
-              CURRICULUM TOPICS & TASK SPECIFICATIONS ({tasks.length})
-            </h3>
-            <span className="text-xs text-[#66707c]">Select topic to view or update status</span>
-          </div>
+        {/* Topics header */}
+        <div
+          className="flex items-center justify-between pb-3"
+          style={{ borderBottom: '1px solid var(--border)' }}
+        >
+          <span className="section-label flex items-center gap-1.5">
+            <Target className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+            Curriculum Topics ({tasks.length})
+          </span>
+          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+            Select topic to view or update status
+          </span>
+        </div>
 
-          <div className="grid grid-cols-1 gap-4">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-[#384150] transition"
-              >
-                <div className="space-y-3 flex-1">
-                  <div className="flex items-center space-x-3">
-                    <PriorityBadge priority={task.priority as any} />
-                    {task.durationLabel && (
-                      <span className="text-xs text-[#9aa3af] bg-[#0d1015] px-2.5 py-0.5 rounded-md border border-[#252b34]">
-                        {task.durationLabel}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <Link
-                      href={`/roadmap/task/${task.id}`}
-                      className="text-base font-bold text-[#f5f7fa] hover:text-emerald-400 transition flex items-center gap-2"
+        {/* Flat topic rows */}
+        <div>
+          {tasks.map((task, idx) => (
+            <div
+              key={task.id}
+              className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-4 transition"
+              style={{
+                background: 'var(--surface-1)',
+                borderTop: idx === 0 ? '1px solid var(--border)' : 'none',
+                borderBottom: '1px solid var(--border)',
+                borderLeft: '1px solid var(--border)',
+                borderRight: '1px solid var(--border)',
+                borderRadius:
+                  idx === 0
+                    ? '4px 4px 0 0'
+                    : idx === tasks.length - 1
+                    ? '0 0 4px 4px'
+                    : '0',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.background = '#1a1a1d';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.background = 'var(--surface-1)';
+              }}
+            >
+              {/* Left: meta + title + subtasks */}
+              <div className="space-y-2 flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <PriorityBadge priority={task.priority as any} />
+                  {task.durationLabel && (
+                    <span
+                      className="text-[10px]"
+                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
                     >
-                      <span>{task.title}</span>
-                      <ArrowRight className="w-4 h-4 text-[#66707c] hover:text-emerald-400" />
-                    </Link>
-                  </div>
-
-                  {task.subtasks.length > 0 && (
-                    <div className="mt-3 pl-3 border-l-2 border-[#252b34] space-y-1.5 bg-[#0d1015] p-3 rounded-r-lg">
-                      <span className="text-[10px] font-semibold text-[#9aa3af] uppercase tracking-wider flex items-center gap-1">
-                        <CheckSquare className="w-3 h-3 text-emerald-400" />
-                        SUBTOPICS & PRACTICAL TASKS:
-                      </span>
-                      <ul className="text-xs text-[#9aa3af] space-y-1">
-                        {task.subtasks.map((st) => (
-                          <li key={st.id} className="flex items-center space-x-2">
-                            <span className="text-emerald-400">•</span>
-                            <span>{st.title}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                      {task.durationLabel}
+                    </span>
                   )}
                 </div>
 
-                <div className="flex flex-col md:items-end space-y-3 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-[#252b34]">
-                  <StatusBadge status={task.progress.status as any} />
-                  <TopicStatusButton taskId={task.id} currentStatus={task.progress.status as any} />
-                  <Link
-                    href={`/roadmap/task/${task.id}`}
-                    className="text-xs text-emerald-400 hover:underline flex items-center gap-1 pt-1"
+                <Link
+                  href={`/roadmap/task/${task.id}`}
+                  className="text-sm font-semibold leading-tight flex items-center gap-1.5 transition"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {task.title}
+                  <ArrowRight className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--text-muted)' }} />
+                </Link>
+
+                {task.subtasks.length > 0 && (
+                  <div
+                    className="mt-2 pl-3 py-2 pr-3 space-y-1"
+                    style={{
+                      borderLeft: '2px solid var(--border)',
+                      background: 'var(--surface-0)',
+                      borderRadius: '0 4px 4px 0',
+                    }}
                   >
-                    <span>Open Task Workspace</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
+                    <span className="section-label flex items-center gap-1">
+                      <CheckSquare className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      Subtopics
+                    </span>
+                    <ul className="space-y-1">
+                      {task.subtasks.map((st) => (
+                        <li key={st.id} className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                          <span style={{ color: 'var(--accent)' }}>•</span>
+                          {st.title}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
+
+              {/* Right: status badge + status buttons + link */}
+              <div
+                className="flex flex-col md:items-end gap-2 shrink-0 pt-3 md:pt-0"
+                style={{ borderTop: 'none' }}
+              >
+                <StatusBadge status={task.progress.status as any} />
+                <TopicStatusButton taskId={task.id} currentStatus={task.progress.status as any} />
+                <Link
+                  href={`/roadmap/task/${task.id}`}
+                  className="flex items-center gap-1 text-[10px] font-semibold transition"
+                  style={{ color: 'var(--accent)' }}
+                >
+                  Open Task Workspace
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
-

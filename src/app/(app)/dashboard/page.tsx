@@ -4,8 +4,13 @@ import { getDashboardStats } from '@/lib/services/dashboard';
 import { getRoadmapOverview } from '@/lib/services/roadmap';
 import { getSkillsOverview } from '@/lib/services/skills';
 import { getSmartIntelligence } from '@/lib/services/intelligence';
-import Link from 'next/link';
+import { CurrentTaskHero } from '@/components/CurrentTaskHero';
 import { SmartRecommendations } from '@/components/SmartRecommendations';
+import Link from 'next/link';
+import { db } from '@/db';
+import { subtasks, taskProgress, notes } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { getAssessmentForTask } from '@/lib/services/assessments';
 import {
   Flame,
   Award,
@@ -13,7 +18,6 @@ import {
   FolderKanban,
   TrendingUp,
   Activity,
-  Pin,
   Target,
   ArrowUpRight,
 } from 'lucide-react';
@@ -26,157 +30,227 @@ export default async function DashboardPage() {
   const skillsList = await getSkillsOverview();
   const intel = await getSmartIntelligence();
 
+  // Build task with details for CurrentTaskHero
+  let taskWithDetails = null;
+  if (stats.currentTask) {
+    const subtaskItems = await db
+      .select()
+      .from(subtasks)
+      .where(eq(subtasks.taskId, stats.currentTask.id));
+    const [progress] = await db
+      .select()
+      .from(taskProgress)
+      .where(eq(taskProgress.taskId, stats.currentTask.id));
+    const taskNotes = await db
+      .select()
+      .from(notes)
+      .where(eq(notes.taskId, stats.currentTask.id));
+    const assessmentData = await getAssessmentForTask(stats.currentTask.id);
+
+    taskWithDetails = {
+      ...stats.currentTask,
+      monthName: stats.currentMonthName,
+      subtasks: subtaskItems,
+      progress: progress || { status: 'NOT_STARTED' as const },
+      assessment: assessmentData,
+      notes: taskNotes,
+    };
+  }
+
+  const topSkills = skillsList
+    .slice(0, 3)
+    .map((s) => ({ category: s.category, proficiencyPercent: s.proficiencyPercent }));
+
+  const activeProject = intel?.relevantProject
+    ? {
+        title: intel.relevantProject.title,
+        description: intel.relevantProject.description,
+        techStack: intel.relevantProject.techStack,
+        projectNumber: intel.relevantProject.projectNumber,
+      }
+    : undefined;
+
   return (
     <div className="flex-1 pb-16">
-      <Header
-        title="Dashboard"
-        subtitle="AI Automation Developer Learning System"
-      />
+      <Header title="Dashboard" subtitle="AI Automation Developer Learning System" />
 
       <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
         {/* Metric Overview Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Tile 1: Course Progress */}
-          <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-[#374151] transition">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-[#9aa3af] font-medium uppercase tracking-wider">
-                Course Progress
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-[#171c23] border border-[#252b34] flex items-center justify-center text-[#f5f7fa]">
-                <TrendingUp className="w-4 h-4 text-emerald-400" />
-              </div>
-            </div>
-            <div className="text-2xl lg:text-3xl font-bold text-[#f5f7fa] mt-3 tracking-tight">
-              {stats.overallProgressPercent}%
-            </div>
-            <div className="w-full bg-[#0d1015] rounded-full h-1.5 mt-3 overflow-hidden border border-[#252b34]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {[
+            {
+              label: 'Progress',
+              value: `${stats.overallProgressPercent}%`,
+              sub: `${stats.completedTasksCount}/${stats.totalTasks} topics`,
+              icon: TrendingUp,
+              accentColor: 'var(--status-completed)',
+            },
+            {
+              label: 'Streak',
+              value: `${stats.streak.currentStreak}`,
+              unit: 'days',
+              sub: stats.streak.activeToday ? 'Active today' : 'Pending today',
+              icon: Flame,
+              accentColor: 'var(--priority-important)',
+            },
+            {
+              label: 'Verified Skills',
+              value: `${stats.verifiedTasksCount}`,
+              sub: 'Quiz passed',
+              icon: Award,
+              accentColor: 'var(--status-completed)',
+            },
+            {
+              label: 'Focus Hours',
+              value: `${stats.totalHoursInvested}`,
+              unit: 'hrs',
+              sub: 'Logged sessions',
+              icon: Clock,
+              accentColor: 'var(--text-muted)',
+            },
+            {
+              label: 'Projects',
+              value: `${stats.completedProjectsCount}/${stats.totalProjects}`,
+              sub: 'Roadmap portfolio',
+              icon: FolderKanban,
+              accentColor: 'var(--accent)',
+              href: '/projects',
+            },
+          ].map((tile) => {
+            const Icon = tile.icon;
+            const card = (
               <div
-                className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500"
-                style={{ width: `${stats.overallProgressPercent}%` }}
-              ></div>
-            </div>
-            <div className="text-[11px] text-[#9aa3af] mt-2.5 flex items-center justify-between">
-              <span>{stats.completedTasksCount} of {stats.totalTasks} topics</span>
-              <span className="text-emerald-400 font-medium">Active</span>
-            </div>
-          </div>
-
-          {/* Tile 2: Streak */}
-          <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-[#374151] transition">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-[#9aa3af] font-medium uppercase tracking-wider">
-                Current Streak
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-[#171c23] border border-[#252b34] flex items-center justify-center text-amber-400">
-                <Flame className="w-4 h-4" />
+                key={tile.label}
+                className="os-surface os-surface-hover p-4 flex flex-col justify-between gap-2"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="section-label">{tile.label}</span>
+                  <Icon className="w-3.5 h-3.5" style={{ color: tile.accentColor }} />
+                </div>
+                <div
+                  className="text-2xl font-medium leading-none"
+                  style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+                >
+                  {tile.value}
+                  {tile.unit && (
+                    <span
+                      className="text-xs ml-1"
+                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                    >
+                      {tile.unit}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                    {tile.sub}
+                  </span>
+                  {tile.href && (
+                    <ArrowUpRight className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="text-2xl lg:text-3xl font-bold text-amber-400 mt-3 tracking-tight flex items-baseline gap-2">
-              <span>{stats.streak.currentStreak}</span>
-              <span className="text-xs font-normal text-[#9aa3af]">Days</span>
-            </div>
-            <div className="text-[11px] text-[#9aa3af] mt-4 flex items-center gap-1.5 border-t border-[#252b34] pt-2">
-              <span className={`w-2 h-2 rounded-full ${stats.streak.activeToday ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
-              <span>{stats.streak.activeToday ? 'Logged study today' : 'Pending study today'}</span>
-            </div>
-          </div>
-
-          {/* Tile 3: Verified Skills */}
-          <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-[#374151] transition">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-[#9aa3af] font-medium uppercase tracking-wider">
-                Verified Skills
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-[#171c23] border border-[#252b34] flex items-center justify-center text-emerald-400">
-                <Award className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl lg:text-3xl font-bold text-[#f5f7fa] mt-3 tracking-tight">
-              {stats.verifiedTasksCount}
-            </div>
-            <div className="text-[11px] text-[#9aa3af] mt-4 border-t border-[#252b34] pt-2 flex items-center justify-between">
-              <span>Quiz verified</span>
-              <span className="text-emerald-400 font-medium">Passed</span>
-            </div>
-          </div>
-
-          {/* Tile 4: Study Hours */}
-          <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-[#374151] transition">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-[#9aa3af] font-medium uppercase tracking-wider">
-                Focus Hours
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-[#171c23] border border-[#252b34] flex items-center justify-center text-[#9aa3af]">
-                <Clock className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl lg:text-3xl font-bold text-[#f5f7fa] mt-3 tracking-tight">
-              {stats.totalHoursInvested} <span className="text-xs text-[#9aa3af]">hrs</span>
-            </div>
-            <div className="text-[11px] text-[#9aa3af] mt-4 border-t border-[#252b34] pt-2">
-              Logged timer sessions
-            </div>
-          </div>
-
-          {/* Tile 5: Projects Built */}
-          <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-[#374151] transition">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-[#9aa3af] font-medium uppercase tracking-wider">
-                Projects Built
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-[#171c23] border border-[#252b34] flex items-center justify-center text-emerald-400">
-                <FolderKanban className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl lg:text-3xl font-bold text-[#f5f7fa] mt-3 tracking-tight">
-              {stats.completedProjectsCount} / {stats.totalProjects}
-            </div>
-            <div className="text-[11px] text-[#9aa3af] mt-4 border-t border-[#252b34] pt-2 flex items-center justify-between">
-              <span>Roadmap portfolio</span>
-              <Link href="/projects" className="text-[#f5f7fa] hover:text-white flex items-center gap-0.5 font-medium">
-                <span>View</span>
-                <ArrowUpRight className="w-3 h-3 text-[#9aa3af]" />
+            );
+            return tile.href ? (
+              <Link key={tile.label} href={tile.href} className="block">
+                {card}
               </Link>
-            </div>
-          </div>
+            ) : (
+              <div key={tile.label}>{card}</div>
+            );
+          })}
         </div>
 
-        {/* Smart Recommendations Engine */}
+        {/* ── CurrentTaskHero — single merged component ── */}
+        {taskWithDetails ? (
+          <CurrentTaskHero
+            task={taskWithDetails as any}
+            stats={stats}
+            topSkills={topSkills}
+            activeProject={activeProject}
+          />
+        ) : (
+          <div
+            className="os-surface p-8 text-center space-y-4"
+          >
+            <Target className="w-8 h-8 mx-auto" style={{ color: 'var(--text-muted)' }} />
+            <div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                No active topic selected
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                Choose a topic from your roadmap to start today's learning session.
+              </p>
+            </div>
+            <Link
+              href="/roadmap"
+              className="inline-flex items-center gap-2 px-5 py-2 text-xs font-semibold transition"
+              style={{
+                background: 'var(--accent)',
+                color: '#fff',
+                borderRadius: '4px',
+              }}
+            >
+              Explore Roadmap
+            </Link>
+          </div>
+        )}
+
+        {/* ── Smart Recommendations (session planner + weaknesses) ── */}
         {intel && <SmartRecommendations intelligence={intel as any} />}
 
-        {/* Skill Progress & Recent Activity */}
+        {/* ── Skill Progress (without top 3 — already in right panel) ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Skill Category Progress */}
-          <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 space-y-4 shadow-sm">
-            <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
-              <h3 className="font-semibold text-[#f5f7fa] text-xs uppercase tracking-wider flex items-center gap-2">
-                <Target className="w-4 h-4 text-emerald-400" />
+          <div className="os-surface p-5 space-y-4">
+            <div
+              className="flex items-center justify-between pb-3"
+              style={{ borderBottom: '1px solid var(--border)' }}
+            >
+              <span className="section-label flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
                 Skill Progress
-              </h3>
-              <Link href="/progress" className="text-xs text-[#f5f7fa] hover:text-white flex items-center gap-1 font-medium">
-                <span>View All</span>
-                <ArrowUpRight className="w-3 h-3 text-[#9aa3af]" />
+              </span>
+              <Link
+                href="/progress"
+                className="flex items-center gap-1 text-[10px] font-semibold transition"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                View All <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
-
-            <div className="space-y-3.5">
+            <div className="space-y-3">
               {skillsList.map((sk) => (
-                <div key={sk.id} className="space-y-1.5 bg-[#171c23] p-3 rounded-lg border border-[#252b34]">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-[#f5f7fa] font-medium">{sk.category}</span>
-                    <span className="text-emerald-400 font-semibold bg-[#12161c] px-2 py-0.5 rounded border border-[#252b34]">
+                <div key={sk.id} className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      {sk.category}
+                    </span>
+                    <span
+                      className="text-[10px] font-medium"
+                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                    >
                       {sk.proficiencyPercent}%
                     </span>
                   </div>
-                  <div className="w-full bg-[#0d1015] rounded-full h-1.5 overflow-hidden border border-[#252b34]">
+                  <div className="progress-bar-track">
                     <div
-                      className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300"
-                      style={{ width: `${sk.proficiencyPercent}%` }}
-                    ></div>
+                      className="progress-bar-fill"
+                      style={{
+                        width: `${sk.proficiencyPercent}%`,
+                        background: 'var(--accent)',
+                      }}
+                    />
                   </div>
-                  <div className="flex justify-between text-[11px] text-[#9aa3af] pt-1">
-                    <span>{sk.completedTasks} of {sk.totalTasks} topics</span>
-                    <span>Verified: {sk.verifiedTasks}</span>
+                  <div
+                    className="flex justify-between text-[10px]"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    <span style={{ fontFamily: 'var(--font-mono)' }}>
+                      {sk.completedTasks}/{sk.totalTasks} topics
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-mono)' }}>
+                      {sk.verifiedTasks} verified
+                    </span>
                   </div>
                 </div>
               ))}
@@ -184,39 +258,67 @@ export default async function DashboardPage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 space-y-4 shadow-sm">
-            <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
-              <h3 className="font-semibold text-[#f5f7fa] text-xs uppercase tracking-wider flex items-center gap-2">
-                <Activity className="w-4 h-4 text-emerald-400" />
+          <div className="os-surface p-5 space-y-4">
+            <div
+              className="flex items-center justify-between pb-3"
+              style={{ borderBottom: '1px solid var(--border)' }}
+            >
+              <span className="section-label flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
                 Recent Activity
-              </h3>
-              <span className="text-[11px] text-[#66707c]">Session History</span>
+              </span>
+              <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                Session history
+              </span>
             </div>
 
             {stats.recentActivity.length === 0 ? (
-              <div className="text-center py-12 text-xs text-[#9aa3af] bg-[#171c23] rounded-lg border border-dashed border-[#252b34] p-6 space-y-2">
-                <Clock className="w-6 h-6 text-[#66707c] mx-auto" />
-                <p className="font-medium text-[#f5f7fa]">No activity logged yet</p>
-                <p className="text-[11px] text-[#9aa3af]">Complete a topic or log a focus session to see your progress here.</p>
+              <div
+                className="py-10 text-center text-xs"
+                style={{
+                  color: 'var(--text-muted)',
+                  border: '1px dashed var(--border)',
+                  borderRadius: '4px',
+                }}
+              >
+                <Clock className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
+                <p className="font-medium" style={{ color: 'var(--text-secondary)' }}>
+                  No activity yet
+                </p>
+                <p className="mt-0.5">Complete a topic or log a focus session.</p>
               </div>
             ) : (
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {stats.recentActivity.map((act, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between bg-[#171c23] p-3 rounded-lg border border-[#252b34] text-xs hover:border-[#374151] transition"
+                    className="flex items-center justify-between px-3 py-2 os-surface-hover transition"
+                    style={{
+                      background: 'var(--surface-0)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '4px',
+                    }}
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-6 h-6 rounded-md bg-[#12161c] border border-[#252b34] flex items-center justify-center text-[#9aa3af] shrink-0">
-                        {act.type === 'TASK' ? (
-                          <Pin className="w-3.5 h-3.5 text-emerald-400" />
-                        ) : (
-                          <Clock className="w-3.5 h-3.5 text-[#9aa3af]" />
-                        )}
-                      </div>
-                      <span className="text-[#f5f7fa] font-medium">{act.title}</span>
+                    <div className="flex items-center gap-2.5">
+                      {act.type === 'TASK' ? (
+                        <Target
+                          className="w-3.5 h-3.5 shrink-0"
+                          style={{ color: 'var(--status-completed)' }}
+                        />
+                      ) : (
+                        <Clock
+                          className="w-3.5 h-3.5 shrink-0"
+                          style={{ color: 'var(--text-muted)' }}
+                        />
+                      )}
+                      <span className="text-xs" style={{ color: 'var(--text-primary)' }}>
+                        {act.title}
+                      </span>
                     </div>
-                    <span className="text-[#9aa3af] text-[11px] bg-[#12161c] px-2 py-1 rounded border border-[#252b34] shrink-0 ml-2">
+                    <span
+                      className="text-[10px] shrink-0 ml-2"
+                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                    >
                       {act.time}
                     </span>
                   </div>
@@ -229,5 +331,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
-
