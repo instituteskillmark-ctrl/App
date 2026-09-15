@@ -11,13 +11,14 @@ export default async function NotesPage() {
   return (
     <div className="flex-1 pb-12">
       <Header
-        title="Personal Knowledge Base & Notes"
-        subtitle="Capture concepts, code snippets, n8n node settings & debugging steps"
+        title="Knowledge Base & Notes"
+        subtitle="Save concepts, code snippets, node configurations & debugging notes"
       />
 
-      <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
         <NoteEditor initialNotes={userNotes} />
       </div>
     </div>
   );
 }
+

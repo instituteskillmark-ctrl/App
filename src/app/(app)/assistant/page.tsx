@@ -11,11 +11,11 @@ export default async function AssistantPage() {
   return (
     <div className="flex-1 pb-12">
       <Header
-        title="AI Learning Assistant & Senior Tutor"
-        subtitle="Roadmap-Aware Intelligence • Personalized Guidance • Senior Code Tutor"
+        title="AI Assistant"
+        subtitle="Learning Companion & Curriculum Guidance"
       />
 
-      <div className="p-8 max-w-5xl mx-auto space-y-6">
+      <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
         <AIAssistantWidget
           currentTaskTitle={stats.currentTask?.title}
           currentMonthName={stats.currentMonthName}
@@ -24,3 +24,4 @@ export default async function AssistantPage() {
     </div>
   );
 }
+

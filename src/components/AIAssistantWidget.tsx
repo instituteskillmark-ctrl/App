@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { actionAskAITutor } from '@/lib/actions/ai-actions';
-import { Bot, Send, Sparkles, AlertCircle, Loader2, MessageSquare, Terminal } from 'lucide-react';
+import { Bot, Send, Compass, Loader2, Terminal } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -17,12 +17,12 @@ interface AIAssistantWidgetProps {
   currentMonthName?: string;
 }
 
-export function AIAssistantWidget({ currentTaskTitle, currentMonthName }: AIAssistantWidgetProps) {
+export function AIAssistantWidget({ currentTaskTitle }: AIAssistantWidgetProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
       sender: 'assistant',
-      text: `Hello! I am your AI Automation Developer Senior Tutor. I have full context of your 26-week curriculum roadmap, active topic ("${currentTaskTitle || 'Roadmap Focus'}"), and verified skill progress. How can I assist your engineering study today?`,
+      text: `Hello! I am your AI learning companion. I have full context of your 26-week curriculum roadmap, active topic ("${currentTaskTitle || 'Roadmap Focus'}"), and skill progress. How can I help you today?`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -34,8 +34,8 @@ export function AIAssistantWidget({ currentTaskTitle, currentMonthName }: AIAssi
     'What should I study next today?',
     `Explain "${currentTaskTitle || 'this topic'}" simply.`,
     `Give me a practical exercise for ${currentTaskTitle || 'this skill'}.`,
-    'Which topics are weak and need revision?',
-    'Am I ready to move to the next topic?',
+    'Which topics need revision?',
+    'Am I ready for the next topic?',
   ];
 
   const handleSend = (textToSend?: string) => {
@@ -68,66 +68,66 @@ export function AIAssistantWidget({ currentTaskTitle, currentMonthName }: AIAssi
   };
 
   return (
-    <div className="bg-[#0e1420] border border-slate-800/80 rounded-xl flex flex-col h-[680px] shadow-2xl overflow-hidden">
+    <div className="bg-[#12161c] border border-[#252b34] rounded-xl flex flex-col h-[680px] shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-slate-800/80 bg-[#080d19] flex items-center justify-between">
+      <div className="p-4 border-b border-[#252b34] bg-[#0d1015] flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-cyan-950/60 ring-1 ring-cyan-400/30">
-            <Bot className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 rounded-lg bg-[#171c23] border border-[#252b34] flex items-center justify-center text-[#f5f7fa] shadow-sm">
+            <Bot className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <h3 className="font-bold text-sm text-slate-100 flex items-center gap-1.5">
-              <span>AI Learning Senior Tutor</span>
+            <h3 className="font-semibold text-sm text-[#f5f7fa] flex items-center gap-1.5">
+              <span>AI Learning Companion</span>
             </h3>
-            <p className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
+            <p className="text-xs text-[#9aa3af] flex items-center gap-1">
               <span>Active Context:</span>
-              <span className="text-cyan-300 font-semibold">{currentTaskTitle ? `"${currentTaskTitle}"` : 'Roadmap Curriculum'}</span>
+              <span className="text-[#f5f7fa] font-medium">{currentTaskTitle ? `"${currentTaskTitle}"` : 'Curriculum Roadmap'}</span>
             </p>
           </div>
         </div>
 
-        <span className="px-3 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-cyan-950 text-cyan-300 border border-cyan-800 flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-cyan-400" />
-          Roadmap-Aware
+        <span className="px-3 py-1 rounded-md text-xs bg-[#171c23] text-[#9aa3af] border border-[#252b34] font-medium flex items-center gap-1.5">
+          <Compass className="w-3.5 h-3.5 text-emerald-400" />
+          Curriculum Aware
         </span>
       </div>
 
       {/* Message List */}
-      <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-[#090e1b]">
+      <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-[#08090c]">
         {messages.map((m) => (
           <div
             key={m.id}
             className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[85%] rounded-xl p-4 text-xs leading-relaxed space-y-2 font-mono shadow-md ${
+              className={`max-w-[85%] rounded-xl p-4 text-xs leading-relaxed space-y-2 shadow-sm ${
                 m.sender === 'user'
-                  ? 'bg-cyan-950/90 text-cyan-100 border border-cyan-700/80 rounded-tr-none'
+                  ? 'bg-[#171c23] text-[#f5f7fa] border border-[#374151] rounded-tr-none'
                   : m.isConfigured === false
-                  ? 'bg-amber-950/70 text-amber-200 border border-amber-800/80 rounded-tl-none'
-                  : 'bg-[#0e1420] text-slate-200 border border-slate-800/90 rounded-tl-none'
+                  ? 'bg-amber-950/40 text-amber-200 border border-amber-800/40 rounded-tl-none'
+                  : 'bg-[#12161c] text-[#f5f7fa] border border-[#252b34] rounded-tl-none'
               }`}
             >
               <div className="whitespace-pre-wrap">{m.text}</div>
-              <div className="text-[10px] text-slate-400 text-right font-mono pt-1 border-t border-white/5">{m.time}</div>
+              <div className="text-[10px] text-[#66707c] text-right pt-1 border-t border-[#252b34]">{m.time}</div>
             </div>
           </div>
         ))}
 
         {isPending && (
           <div className="flex justify-start">
-            <div className="bg-[#0e1420] p-3.5 rounded-xl border border-slate-800 text-xs font-mono text-cyan-300 flex items-center space-x-2 shadow-md">
-              <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
-              <span>Analyzing curriculum state & generating senior tutor response...</span>
+            <div className="bg-[#12161c] p-3.5 rounded-xl border border-[#252b34] text-xs text-[#9aa3af] flex items-center space-x-2 shadow-sm">
+              <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
+              <span>Analyzing curriculum state & generating response...</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Suggested Prompts */}
-      <div className="p-3 bg-[#080d19] border-t border-slate-800/80 overflow-x-auto flex items-center space-x-2 shrink-0">
-        <span className="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider shrink-0 flex items-center gap-1">
-          <Terminal className="w-3 h-3 text-cyan-400" />
+      {/* Quick Prompts */}
+      <div className="p-3 bg-[#0d1015] border-t border-[#252b34] overflow-x-auto flex items-center space-x-2 shrink-0">
+        <span className="text-xs text-[#9aa3af] font-medium shrink-0 flex items-center gap-1">
+          <Terminal className="w-3.5 h-3.5 text-[#66707c]" />
           Quick Prompts:
         </span>
         {suggestedPrompts.map((p, idx) => (
@@ -135,7 +135,7 @@ export function AIAssistantWidget({ currentTaskTitle, currentMonthName }: AIAssi
             key={idx}
             onClick={() => handleSend(p)}
             disabled={isPending}
-            className="whitespace-nowrap px-3 py-1 bg-[#0e1420] hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/50 rounded-lg text-[11px] font-mono text-slate-300 transition"
+            className="whitespace-nowrap px-3 py-1 bg-[#12161c] hover:bg-[#171c23] border border-[#252b34] hover:border-[#374151] rounded-lg text-xs text-[#9aa3af] hover:text-[#f5f7fa] transition"
           >
             {p}
           </button>
@@ -143,20 +143,20 @@ export function AIAssistantWidget({ currentTaskTitle, currentMonthName }: AIAssi
       </div>
 
       {/* Input Bar */}
-      <div className="p-3.5 border-t border-slate-800/80 bg-[#080d19] flex items-center space-x-2">
+      <div className="p-3.5 border-t border-[#252b34] bg-[#0d1015] flex items-center space-x-2">
         <input
           type="text"
-          placeholder="Ask your senior tutor anything about your current topic or codebase..."
+          placeholder="Ask your learning companion anything about your current topic..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          className="flex-1 bg-[#0e1420] border border-slate-800 rounded-lg px-4 py-2.5 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500 placeholder:text-slate-500"
+          className="flex-1 bg-[#12161c] border border-[#252b34] rounded-lg px-4 py-2.5 text-xs text-[#f5f7fa] focus:outline-none focus:border-[#374151] placeholder:text-[#66707c]"
         />
 
         <button
           onClick={() => handleSend()}
           disabled={isPending || !input.trim()}
-          className="px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:opacity-50 text-white font-mono text-xs font-bold rounded-lg transition shadow-md shadow-cyan-950 flex items-center gap-1.5 shrink-0"
+          className="px-5 py-2.5 bg-[#f5f7fa] hover:bg-white text-[#08090c] text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shrink-0"
         >
           <span>Send</span>
           <Send className="w-3.5 h-3.5" />
@@ -165,4 +165,5 @@ export function AIAssistantWidget({ currentTaskTitle, currentMonthName }: AIAssi
     </div>
   );
 }
+
 

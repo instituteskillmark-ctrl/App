@@ -11,10 +11,9 @@ import {
   Target,
   ArrowRight,
   Calendar,
-  Clock,
   BookOpen,
   Wrench,
-  Sparkles,
+  Compass,
   Bug,
   CheckSquare,
   Sun,
@@ -46,54 +45,54 @@ export default async function TodayPage() {
   const dailySchedule = [
     { day: 'Mon', activity: 'Learn (theory)', duration: '30–45 min', icon: BookOpen },
     { day: 'Tue', activity: 'Build / Practice', duration: '60–90 min', icon: Wrench },
-    { day: 'Wed', activity: 'Learn (docs) + Notes', duration: '30–45 min', icon: Sparkles },
-    { day: 'Thu', activity: 'Build / Debug', duration: '60–90 min', icon: Bug },
+    { day: 'Wed', activity: 'Docs & Notes', duration: '30–45 min', icon: Compass },
+    { day: 'Thu', activity: 'Build & Debug', duration: '60–90 min', icon: Bug },
     { day: 'Fri', activity: 'Project Work', duration: '60–90 min', icon: CheckSquare },
-    { day: 'Sat', activity: 'Review + Improve', duration: '45–60 min', icon: Target },
-    { day: 'Sun', activity: 'Rest & Recharge', duration: 'Off / Rest', icon: Sun },
+    { day: 'Sat', activity: 'Review & Test', duration: '45–60 min', icon: Target },
+    { day: 'Sun', activity: 'Rest & Recharge', duration: 'Off Day', icon: Sun },
   ];
 
   return (
     <div className="flex-1 pb-16">
       <Header
-        title="Today's Learning Workspace"
-        subtitle="Focused Daily Execution Engine • Real Roadmap Progress & Focus Agenda"
+        title="Today's Focus"
+        subtitle="Daily Execution & Active Learning Task"
       />
 
       <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
         {targetTaskWithDetails ? (
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-              <h3 className="text-xs font-mono font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2">
-                <Target className="w-4 h-4 text-cyan-400" />
-                ACTIVE TARGET ROADMAP TASK
+            <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
+              <h3 className="text-xs font-semibold text-[#f5f7fa] uppercase tracking-wider flex items-center gap-2">
+                <Target className="w-4 h-4 text-emerald-400" />
+                Active Roadmap Task
               </h3>
               <Link
                 href={`/roadmap/task/${targetTaskWithDetails.id}`}
-                className="text-xs text-cyan-400 hover:text-cyan-300 font-mono flex items-center gap-1 font-semibold"
+                className="text-xs text-[#f5f7fa] hover:text-white flex items-center gap-1 font-semibold"
               >
-                <span>Full Task Workspace</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Full Task View</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#9aa3af]" />
               </Link>
             </div>
 
             <TaskDetailView task={targetTaskWithDetails as any} />
           </div>
         ) : (
-          <div className="bg-[#0e1420] border border-slate-800/80 rounded-xl p-8 lg:p-12 text-center space-y-4 shadow-xl">
-            <div className="w-12 h-12 rounded-xl bg-cyan-950/80 border border-cyan-800/50 flex items-center justify-center text-cyan-400 mx-auto">
+          <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-8 lg:p-12 text-center space-y-4 shadow-sm">
+            <div className="w-12 h-12 rounded-xl bg-[#171c23] border border-[#252b34] flex items-center justify-center text-emerald-400 mx-auto">
               <Target className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-slate-100">No active focus task selected</h3>
-              <p className="text-xs text-slate-400 font-mono max-w-md mx-auto">
-                Select a topic from your 26-week curriculum to activate today's dedicated execution workspace.
+              <h3 className="text-lg font-semibold text-[#f5f7fa]">No active topic selected</h3>
+              <p className="text-xs text-[#9aa3af] max-w-md mx-auto">
+                Choose a topic from your 26-week roadmap to activate today's learning workspace.
               </p>
             </div>
             <div className="pt-2">
               <Link
                 href="/roadmap"
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-mono font-bold rounded-lg transition shadow-lg shadow-cyan-950/60"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#f5f7fa] hover:bg-white text-[#08090c] text-xs font-semibold rounded-lg transition"
               >
                 <span>Explore Roadmap Topics</span>
                 <ArrowRight className="w-4 h-4" />
@@ -102,14 +101,14 @@ export default async function TodayPage() {
           </div>
         )}
 
-        {/* Weekly Routine Schedule directly matching the Reference Infographic */}
-        <div className="bg-[#0e1420] border border-slate-800/80 rounded-xl p-6 space-y-4 shadow-lg">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/60 pb-3 gap-2">
-            <h3 className="text-xs font-mono font-bold text-slate-200 uppercase tracking-widest flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-cyan-400" />
-              WEEKLY SAMPLE PLAN (2–3 HOURS/DAY ROUTINE)
+        {/* Weekly Routine Schedule */}
+        <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 space-y-4 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#252b34] pb-3 gap-2">
+            <h3 className="text-xs font-semibold text-[#f5f7fa] uppercase tracking-wider flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-emerald-400" />
+              Weekly Schedule (2–3 hrs/day routine)
             </h3>
-            <span className="text-[10px] text-slate-400 font-mono">Structured Consistency Engine</span>
+            <span className="text-[11px] text-[#66707c]">Consistent Study Plan</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
@@ -120,16 +119,16 @@ export default async function TodayPage() {
                   key={s.day}
                   className={`p-3.5 rounded-xl border text-center space-y-2 transition ${
                     s.day === 'Sun'
-                      ? 'bg-emerald-950/20 border-emerald-800/50 text-emerald-300'
-                      : 'bg-[#080d19] border-slate-800/80 text-slate-200 hover:border-slate-700'
+                      ? 'bg-emerald-950/20 border-emerald-800/40 text-emerald-300'
+                      : 'bg-[#171c23] border-[#252b34] text-[#f5f7fa] hover:border-[#374151]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold font-mono uppercase text-slate-400">{s.day}</span>
-                    <Icon className={`w-3.5 h-3.5 ${s.day === 'Sun' ? 'text-emerald-400' : 'text-cyan-400'}`} />
+                    <span className="text-xs font-semibold uppercase text-[#9aa3af]">{s.day}</span>
+                    <Icon className={`w-3.5 h-3.5 ${s.day === 'Sun' ? 'text-emerald-400' : 'text-[#9aa3af]'}`} />
                   </div>
-                  <div className="text-xs font-bold tracking-tight text-slate-100">{s.activity}</div>
-                  <div className="text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-800/60">
+                  <div className="text-xs font-semibold tracking-tight text-[#f5f7fa]">{s.activity}</div>
+                  <div className="text-[11px] text-[#66707c] pt-1 border-t border-[#252b34]">
                     {s.duration}
                   </div>
                 </div>
@@ -141,4 +140,5 @@ export default async function TodayPage() {
     </div>
   );
 }
+
 

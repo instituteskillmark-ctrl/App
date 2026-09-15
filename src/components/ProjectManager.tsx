@@ -54,38 +54,38 @@ export function ProjectManager({ initialProjects }: { initialProjects: Project[]
       {initialProjects.map((p) => (
         <div
           key={p.id}
-          className="bg-[#0e1420] border border-slate-800/80 rounded-xl p-6 flex flex-col justify-between hover:border-slate-700/80 transition shadow-lg space-y-4 group"
+          className="bg-[#12161c] border border-[#252b34] rounded-xl p-6 flex flex-col justify-between hover:border-[#374151] transition shadow-sm space-y-4 group"
         >
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="px-2.5 py-1 rounded-md bg-[#080d19] border border-cyan-800/60 text-cyan-400 font-bold text-[11px] flex items-center gap-1.5">
-                <FolderKanban className="w-3.5 h-3.5" />
-                PROJECT {p.projectNumber}
+            <div className="flex items-center justify-between text-xs">
+              <span className="px-2.5 py-1 rounded-md bg-[#171c23] border border-[#252b34] text-[#f5f7fa] font-semibold text-xs flex items-center gap-1.5">
+                <FolderKanban className="w-3.5 h-3.5 text-emerald-400" />
+                Project {p.projectNumber}
               </span>
-              <span className="text-slate-400 text-[11px] flex items-center gap-1">
-                <Calendar className="w-3 h-3 text-slate-500" />
+              <span className="text-[#9aa3af] text-xs flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-[#66707c]" />
                 {p.weekRange}
               </span>
             </div>
 
-            <h3 className="text-lg font-bold text-slate-100 group-hover:text-cyan-300 transition">{p.title}</h3>
-            <p className="text-xs text-slate-400 font-mono leading-relaxed">{p.description}</p>
+            <h3 className="text-lg font-semibold text-[#f5f7fa] group-hover:text-white transition">{p.title}</h3>
+            <p className="text-xs text-[#9aa3af] leading-relaxed">{p.description}</p>
 
             {p.techStack && (
-              <div className="pt-2 bg-[#080d19] p-3 rounded-lg border border-slate-800/80">
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                  <Code className="w-3 h-3 text-cyan-400" />
-                  TECH STACK & ARCHITECTURE:
+              <div className="pt-2 bg-[#171c23] p-3 rounded-lg border border-[#252b34]">
+                <span className="text-[11px] font-semibold text-[#9aa3af] uppercase tracking-wider block flex items-center gap-1.5">
+                  <Code className="w-3.5 h-3.5 text-[#9aa3af]" />
+                  Tech Stack:
                 </span>
-                <span className="text-xs text-cyan-300 font-mono mt-1 block font-medium">{p.techStack}</span>
+                <span className="text-xs text-[#f5f7fa] font-medium mt-1 block">{p.techStack}</span>
               </div>
             )}
 
             {/* Project Stage Flow */}
-            <div className="pt-3 border-t border-slate-800/60 space-y-2">
-              <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block flex items-center gap-1">
-                <Layers className="w-3 h-3 text-slate-400" />
-                PROJECT STAGE FLOW:
+            <div className="pt-3 border-t border-[#252b34] space-y-2">
+              <span className="text-[11px] font-semibold text-[#9aa3af] uppercase tracking-wider block flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-[#66707c]" />
+                Project Stage:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {STAGES.map((stg) => (
@@ -93,32 +93,32 @@ export function ProjectManager({ initialProjects }: { initialProjects: Project[]
                     key={stg}
                     disabled={isPending}
                     onClick={() => handleStageChange(p.id, stg)}
-                    className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase transition ${
+                    className={`px-2.5 py-1 rounded text-[11px] font-semibold transition ${
                       p.progress.currentStage === stg
-                        ? 'bg-cyan-600/90 text-white border border-cyan-400 shadow-xs'
-                        : 'bg-[#080d19] text-slate-400 hover:text-slate-200 border border-slate-800'
+                        ? 'bg-[#171c23] text-[#f5f7fa] border border-[#374151]'
+                        : 'bg-[#0d1015] text-[#9aa3af] hover:text-[#f5f7fa] border border-[#252b34]'
                     }`}
                   >
-                    {stg}
+                    {stg.charAt(0) + stg.slice(1).toLowerCase()}
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-800/60 space-y-3">
-            <div className="flex items-center justify-between text-xs font-mono">
+          <div className="pt-4 border-t border-[#252b34] space-y-3">
+            <div className="flex items-center justify-between text-xs">
               <StatusBadge status={p.progress.status as any} />
               {p.progress.repoUrl ? (
                 <a
                   href={p.progress.repoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 font-semibold text-xs"
+                  className="text-[#f5f7fa] hover:text-white flex items-center gap-1.5 font-semibold text-xs"
                 >
-                  <GitBranch className="w-3.5 h-3.5" />
-                  <span>Repository Link</span>
-                  <ExternalLink className="w-3 h-3" />
+                  <GitBranch className="w-3.5 h-3.5 text-[#9aa3af]" />
+                  <span>Repository</span>
+                  <ExternalLink className="w-3 h-3 text-[#66707c]" />
                 </a>
               ) : (
                 <button
@@ -127,44 +127,44 @@ export function ProjectManager({ initialProjects }: { initialProjects: Project[]
                     setRepoUrl(p.progress.repoUrl || '');
                     setNotes(p.progress.notes || '');
                   }}
-                  className="text-slate-400 hover:text-cyan-300 text-xs font-mono flex items-center gap-1"
+                  className="text-[#9aa3af] hover:text-[#f5f7fa] text-xs flex items-center gap-1 font-medium"
                 >
-                  <Plus className="w-3 h-3 text-cyan-400" />
-                  <span>Add Repository URL</span>
+                  <Plus className="w-3 h-3 text-[#66707c]" />
+                  <span>Add Repository Link</span>
                 </button>
               )}
             </div>
 
             {editingProjectId === p.id && (
-              <div className="p-3 bg-[#080d19] rounded-xl border border-slate-800/80 space-y-2.5">
+              <div className="p-3 bg-[#171c23] rounded-lg border border-[#252b34] space-y-2.5">
                 <input
                   type="url"
                   placeholder="https://github.com/your-username/repo"
                   value={repoUrl}
                   onChange={(e) => setRepoUrl(e.target.value)}
-                  className="w-full bg-[#0e1420] border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-[#12161c] border border-[#252b34] rounded-lg px-3 py-1.5 text-xs text-[#f5f7fa] focus:outline-none focus:border-[#374151]"
                 />
                 <input
                   type="text"
                   placeholder="Project notes or live demo URL..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full bg-[#0e1420] border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-[#12161c] border border-[#252b34] rounded-lg px-3 py-1.5 text-xs text-[#f5f7fa] focus:outline-none focus:border-[#374151]"
                 />
                 <div className="flex justify-end space-x-2 pt-1">
                   <button
                     onClick={() => setEditingProjectId(null)}
-                    className="px-3 py-1 text-[11px] font-mono text-slate-400 hover:text-slate-200"
+                    className="px-3 py-1 text-xs text-[#9aa3af] hover:text-[#f5f7fa]"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => handleSaveDetails(p.id)}
                     disabled={isPending}
-                    className="px-3.5 py-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-mono text-[11px] font-bold rounded-md shadow-xs flex items-center gap-1"
+                    className="px-3.5 py-1 bg-[#f5f7fa] hover:bg-white text-[#08090c] text-xs font-semibold rounded-md flex items-center gap-1"
                   >
                     {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
-                    <span>Save Details</span>
+                    <span>Save</span>
                   </button>
                 </div>
               </div>
@@ -175,4 +175,5 @@ export function ProjectManager({ initialProjects }: { initialProjects: Project[]
     </div>
   );
 }
+
 

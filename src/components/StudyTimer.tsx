@@ -38,7 +38,7 @@ export function StudyTimer({ taskId, projectId, taskTitle }: StudyTimerProps) {
   };
 
   const handleCompleteSession = () => {
-    if (seconds < 10) return; // Prevent accidental 0-second logs
+    if (seconds < 10) return;
 
     const durationMinutes = Math.max(1, Math.round(seconds / 60));
 
@@ -63,32 +63,32 @@ export function StudyTimer({ taskId, projectId, taskTitle }: StudyTimerProps) {
   };
 
   return (
-    <div className="bg-[#080d19] border border-slate-800/80 rounded-xl p-5 space-y-4 shadow-lg">
-      <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
+    <div className="bg-[#12161c] border border-[#252b34] rounded-xl p-5 space-y-4 shadow-sm">
+      <div className="flex items-center justify-between border-b border-[#252b34] pb-3">
         <div className="flex items-center space-x-2">
-          <Clock className="w-4 h-4 text-cyan-400" />
-          <h4 className="font-bold text-xs text-slate-100 font-mono uppercase tracking-wider">
-            LIVE STUDY & FOCUS TIMER
+          <Clock className="w-4 h-4 text-[#9aa3af]" />
+          <h4 className="font-semibold text-xs text-[#f5f7fa] uppercase tracking-wider">
+            Study Timer
           </h4>
         </div>
         {taskTitle && (
-          <span className="text-[11px] text-cyan-300 font-mono font-semibold truncate max-w-[220px] bg-cyan-950/60 px-2.5 py-0.5 rounded border border-cyan-800/50">
+          <span className="text-xs text-[#9aa3af] font-medium truncate max-w-[220px] bg-[#171c23] px-2.5 py-0.5 rounded border border-[#252b34]">
             {taskTitle}
           </span>
         )}
       </div>
 
-      <div className="text-center py-6 bg-[#0e1420] rounded-xl border border-slate-800/80 space-y-1">
-        <div className="text-4xl lg:text-5xl font-bold font-mono text-cyan-300 tracking-wider">
+      <div className="text-center py-6 bg-[#171c23] rounded-xl border border-[#252b34] space-y-1">
+        <div className="text-4xl lg:text-5xl font-bold text-[#f5f7fa] tracking-wider">
           {formatTime(seconds)}
         </div>
-        <div className="text-[10px] text-slate-400 font-mono flex items-center justify-center gap-1.5 pt-1">
+        <div className="text-xs text-[#9aa3af] flex items-center justify-center gap-1.5 pt-1">
           <span
             className={`w-2 h-2 rounded-full ${
-              isActive ? 'bg-emerald-400 animate-pulse' : seconds > 0 ? 'bg-amber-400' : 'bg-slate-500'
+              isActive ? 'bg-emerald-400' : seconds > 0 ? 'bg-amber-400' : 'bg-[#66707c]'
             }`}
           ></span>
-          <span>{isActive ? 'Timer Running' : seconds > 0 ? 'Timer Paused' : 'Ready to Start Session'}</span>
+          <span>{isActive ? 'Timer Running' : seconds > 0 ? 'Timer Paused' : 'Ready to Start'}</span>
         </div>
       </div>
 
@@ -96,7 +96,7 @@ export function StudyTimer({ taskId, projectId, taskTitle }: StudyTimerProps) {
         {!isActive ? (
           <button
             onClick={handleStart}
-            className="flex-1 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-lg text-xs transition font-mono shadow-md shadow-cyan-950 flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 bg-[#f5f7fa] hover:bg-white text-[#08090c] font-semibold rounded-lg text-xs transition flex items-center justify-center gap-1.5"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>{seconds > 0 ? 'Resume Timer' : 'Start Session'}</span>
@@ -104,7 +104,7 @@ export function StudyTimer({ taskId, projectId, taskTitle }: StudyTimerProps) {
         ) : (
           <button
             onClick={handlePause}
-            className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg text-xs transition font-mono shadow-md shadow-amber-950 flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 bg-amber-950/60 hover:bg-amber-900/60 border border-amber-800/40 text-amber-300 font-semibold rounded-lg text-xs transition flex items-center justify-center gap-1.5"
           >
             <Pause className="w-3.5 h-3.5 fill-current" />
             <span>Pause Timer</span>
@@ -115,7 +115,7 @@ export function StudyTimer({ taskId, projectId, taskTitle }: StudyTimerProps) {
           <button
             onClick={handleReset}
             disabled={isPending}
-            className="px-3 py-2.5 bg-[#0e1420] hover:bg-slate-900 text-slate-400 rounded-lg text-xs transition font-mono border border-slate-800 flex items-center gap-1"
+            className="px-3 py-2.5 bg-[#171c23] hover:bg-[#252b34] text-[#9aa3af] rounded-lg text-xs transition border border-[#252b34] flex items-center gap-1"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset</span>
@@ -124,18 +124,18 @@ export function StudyTimer({ taskId, projectId, taskTitle }: StudyTimerProps) {
       </div>
 
       {seconds > 0 && (
-        <div className="space-y-3 pt-3 border-t border-slate-800/60">
+        <div className="space-y-3 pt-3 border-t border-[#252b34]">
           <div className="flex items-center space-x-2">
-            <span className="text-xs text-slate-400 font-mono">Stage:</span>
+            <span className="text-xs text-[#9aa3af]">Stage:</span>
             <select
               value={sessionType}
               onChange={(e) => setSessionType(e.target.value)}
-              className="flex-1 bg-[#0e1420] border border-slate-800 rounded-md px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+              className="flex-1 bg-[#171c23] border border-[#252b34] rounded-md px-2.5 py-1.5 text-xs text-[#f5f7fa] focus:outline-none focus:border-[#374151]"
             >
-              <option value="LEARN">LEARN (Theory)</option>
-              <option value="PRACTICE">PRACTICE (Exercises)</option>
-              <option value="BUILD">BUILD (Project)</option>
-              <option value="REVIEW">REVIEW (Notes & Revision)</option>
+              <option value="LEARN">Learn (Theory)</option>
+              <option value="PRACTICE">Practice (Exercises)</option>
+              <option value="BUILD">Build (Project)</option>
+              <option value="REVIEW">Review (Notes)</option>
             </select>
           </div>
 
@@ -144,13 +144,13 @@ export function StudyTimer({ taskId, projectId, taskTitle }: StudyTimerProps) {
             placeholder="Session notes / what you accomplished..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full bg-[#0e1420] border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+            className="w-full bg-[#171c23] border border-[#252b34] rounded-lg px-3 py-2 text-xs text-[#f5f7fa] focus:outline-none focus:border-[#374151]"
           />
 
           <button
             onClick={handleCompleteSession}
             disabled={isPending}
-            className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs transition font-mono shadow-md shadow-emerald-950 flex items-center justify-center gap-1.5"
+            className="w-full py-2.5 bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-800/40 text-emerald-300 font-semibold rounded-lg text-xs transition flex items-center justify-center gap-1.5"
           >
             {isPending ? (
               <>
@@ -160,7 +160,7 @@ export function StudyTimer({ taskId, projectId, taskTitle }: StudyTimerProps) {
             ) : (
               <>
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Save & Log Session to DB</span>
+                <span>Log Session</span>
               </>
             )}
           </button>
@@ -169,3 +169,4 @@ export function StudyTimer({ taskId, projectId, taskTitle }: StudyTimerProps) {
     </div>
   );
 }
+
