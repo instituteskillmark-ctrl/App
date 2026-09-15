@@ -468,11 +468,11 @@ export async function seedRoadmap() {
   }).returning();
 
   const m6Weeks = [
-    { weekNumber: 23, title: 'Week 1 (Days 1–5): Project 1 — Lead Management System' },
-    { weekNumber: 24, title: 'Week 2 (Days 6–10): Project 2 — E-commerce Order Automation' },
-    { weekNumber: 25, title: 'Week 3 (Days 11–15): Project 3 — AI Email Assistant with RAG' },
-    { weekNumber: 26, title: 'Week 4 (Days 16–20): Project 4 — Social Media Auto Poster' },
-    { weekNumber: 27, title: 'Week 5 (Days 21–27): Project 5 & 6 — Expense Tracker & Custom API Hub + Portfolio' },
+    { weekNumber: 24, title: 'Week 1 (Days 1–5): Lead Management System (Project 1)' },
+    { weekNumber: 25, title: 'Week 2 (Days 6–10): E-commerce Order Automation (Project 2)' },
+    { weekNumber: 26, title: 'Week 3 (Days 11–15): AI Email Assistant with RAG (Project 3)' },
+    { weekNumber: 27, title: 'Week 4 (Days 16–20): Social Media Auto Poster (Project 4)' },
+    { weekNumber: 28, title: 'Week 5 (Days 21–27): Expense Tracker & Custom API Integration Hub (Projects 5 & 6) + Portfolio' },
   ];
 
   const w6Ids: Record<number, string> = {};
@@ -486,12 +486,12 @@ export async function seedRoadmap() {
   }
 
   const m6Tasks = [
-    { week: 23, order: 1, priority: 'MASTER' as const, duration: '1 week', title: '1. Lead Management System (Project 1)', desc: 'Automate lead collection, enrichment, data validation, database storage, and email/WhatsApp follow-ups.', subtopics: ['Webhook + form integration (Typeform/Google Forms)', 'Data validation & enrichment (Clearbit/Hunter.io)', 'Save to PostgreSQL/Supabase database', 'Auto email/WhatsApp follow-ups', 'Lead tracking dashboard'] },
-    { week: 24, order: 2, priority: 'MASTER' as const, duration: '1 week', title: '2. E-commerce Order Automation (Project 2)', desc: 'Sync orders, update inventory, and send notifications automatically across Shopify/Daraz.', subtopics: ['API integration (Shopify/Daraz)', 'Order data processing & transformation', 'Update inventory in database', 'Send customer & admin notifications', 'Handle errors & retry logic'] },
-    { week: 25, order: 3, priority: 'MASTER' as const, duration: '1 week', title: '3. AI Email Assistant with RAG (Project 3)', desc: 'Create an AI assistant that answers questions using custom knowledge base documents.', subtopics: ['Vector database setup (Pinecone/Supabase)', 'Document loading & chunking', 'RAG retrieval workflow in n8n', 'OpenAI API integration', 'Build chat UI interface'] },
-    { week: 26, order: 4, priority: 'IMPORTANT' as const, duration: '1 week', title: '4. Social Media Auto Poster (Project 4)', desc: 'Automatically generate and post dynamic content to social media platforms.', subtopics: ['Social media APIs (Twitter/X, LinkedIn)', 'Dynamic AI content generation + templates', 'Scheduling & posting queue', 'Error handling & retry logs'] },
-    { week: 27, order: 5, priority: 'IMPORTANT' as const, duration: '1 week', title: '5. Expense Tracker System (Project 5)', desc: 'Track expenses, categorize receipts via AI rules, store in DB, and generate reports.', subtopics: ['Data input (Form / Email / CSV)', 'Categorization using AI rules', 'Database storage & query analytics', 'Generate charts & reports'] },
-    { week: 27, order: 6, priority: 'MASTER' as const, duration: '1 week', title: '6. Custom API Integration Hub (Project 6)', desc: 'Connect multiple APIs and manage them from a single unified control hub.', subtopics: ['Multi-API integration', 'API key & OAuth security', 'Vanilla JS dashboard interface', 'Save and manage API response logs'] },
+    { week: 24, order: 1, priority: 'MASTER' as const, duration: '1 Week', title: '1. Lead Management System (Project 1)', desc: 'Automate lead collection, enrichment, and follow-ups for businesses.', subtopics: ['Webhook + form integration (Typeform, Google Forms)', 'Data validation & enrichment (Clearbit / Hunter.io)', 'Save to database (Supabase/PostgreSQL)', 'Auto email/WhatsApp follow-ups', 'Basic dashboard for lead tracking'] },
+    { week: 25, order: 2, priority: 'MASTER' as const, duration: '1 Week', title: '2. E-commerce Order Automation (Project 2)', desc: 'Sync orders, update inventory and send notifications automatically.', subtopics: ['API integration (Shopify/Daraz, etc.)', 'Order data processing & transformation', 'Update inventory in database', 'Send customer & admin notifications', 'Handle errors & retry logic'] },
+    { week: 26, order: 3, priority: 'MASTER' as const, duration: '1 Week', title: '3. AI Email Assistant with RAG (Project 3)', desc: 'Create an AI assistant that answers from your own knowledge base.', subtopics: ['Vector database (Pinecone / Supabase)', 'Document loading & chunking', 'RAG (Retrieval Augmented Generation)', 'OpenAI API integration', 'Build a simple chat interface'] },
+    { week: 27, order: 4, priority: 'IMPORTANT' as const, duration: '1 Week', title: '4. Social Media Auto Poster (Project 4)', desc: 'Automatically create and post content to social media platforms.', subtopics: ['Social media APIs (Twitter/X, LinkedIn, etc.)', 'Dynamic content generation (AI + templates)', 'Scheduling & posting', 'Error handling & retries', 'Keep logs of posted content'] },
+    { week: 28, order: 5, priority: 'IMPORTANT' as const, duration: '1 Week', title: '5. Expense Tracker (Project 5)', desc: 'Track expenses, categorize them and get simple reports.', subtopics: ['Data input (form / email / CSV)', 'Categorization (using AI or rules)', 'Database storage', 'Generate charts/reports', 'User authentication (optional)'] },
+    { week: 28, order: 6, priority: 'MASTER' as const, duration: '1 Week', title: '6. Custom API Integration Hub (Project 6)', desc: 'Connect multiple APIs and manage them from a single interface.', subtopics: ['Work with multiple APIs', 'Handle authentication (API keys/OAuth)', 'Create a simple UI (vanilla JS)', 'Error handling & rate limits', 'Save and manage API responses'] },
   ];
 
   for (const t of m6Tasks) {
