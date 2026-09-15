@@ -17,8 +17,6 @@ import {
   assessmentQuestions,
   taskProgress,
   projectProgress,
-  studySessions,
-  notes,
 } from './schema';
 
 // Use direct (unpooled) connection for seed operations
@@ -31,7 +29,7 @@ const seedClient = postgres(connectionString, { max: 1, prepare: false });
 const db = drizzle(seedClient);
 
 export async function seedRoadmap() {
-  console.log('🌱 Starting Comprehensive Roadmap Audit & Seed against Source of Truth Images...');
+  console.log('🌱 Starting Comprehensive Roadmap Audit & Seed (Month 1 - Month 6 Source of Truth)...');
 
   // Clear existing roadmap tables to guarantee a clean re-seed
   try {
@@ -49,9 +47,9 @@ export async function seedRoadmap() {
     console.log('Seed cleanup note:', err);
   }
 
-  // ------------------------------------------------------------
+  // ============================================================
   // MONTH 1: Automation Thinking + n8n Basics (4 Weeks)
-  // ------------------------------------------------------------
+  // ============================================================
   const [m1] = await db.insert(roadmapMonths).values({
     monthNumber: 1,
     title: 'Automation Thinking + n8n Basics',
@@ -79,10 +77,10 @@ export async function seedRoadmap() {
 
   const m1Tasks = [
     // Week 1
-    { week: 1, order: 1, priority: 'BASICS_ENOUGH' as const, duration: '1 day', title: '1.1 What is automation? (real-world examples)', desc: 'Understand what automation is, how it works, and where it can be used in daily life & business.', subtopics: ['Understand automation mindset', 'Real-world automation examples', 'Simple explanation: letting tools do repetitive work'] },
+    { week: 1, order: 1, priority: 'BASICS_ENOUGH' as const, duration: '1 day', title: '1.1 What is automation? (real-world examples)', desc: 'Understand what automation is, how it works, and where it can be used in daily life & business.', subtopics: ['Automation mindset definition', 'Real-world examples (saving email attachments, Slack notifications)', 'Simple explanation: letting tools do repetitive work'] },
     { week: 1, order: 2, priority: 'IMPORTANT' as const, duration: '1 day', title: '1.2 Identify manual tasks in your daily life/work', desc: 'Identify manual, repetitive tasks that can be automated to save time.', subtopics: ['Audit daily workflow for repetitive tasks', 'Calculate potential time savings', 'Select high-impact automation candidates'] },
     { week: 1, order: 3, priority: 'MASTER' as const, duration: '1 day', title: '1.3 Learn the automation workflow (Trigger + Action)', desc: 'Master core automation mechanics: Trigger events and Action executions.', subtopics: ['Understand Trigger vs Action concepts', 'Map input data to output actions', 'Design basic logic flows'] },
-    { week: 1, order: 4, priority: 'BASICS_ENOUGH' as const, duration: '1 day', title: '1.4 Explore popular tools (n8n, Zapier, Make, etc.)', desc: 'Compare low-code and open-source automation platforms.', subtopics: ['Compare n8n vs Zapier vs Make', 'Understand self-hosted vs cloud options', 'Evaluate cost and flexibility'] },
+    { week: 1, order: 4, priority: 'BASICS_ENOUGH' as const, duration: '1 day', title: '1.4 Explore popular tools (n8n, Zapier, Make, etc.)', desc: 'Compare low-code and open-source automation platforms.', subtopics: ['Compare n8n vs Zapier vs Make', 'Understand self-hosted vs cloud options', 'Evaluate cost, privacy, and flexibility'] },
     { week: 1, order: 5, priority: 'IMPORTANT' as const, duration: '1 day', title: '1.5 Choose 3 real use cases (personal or business)', desc: 'Define 3 concrete automation use cases to build during your training.', subtopics: ['Define email attachment automation', 'Define notification & alert workflow', 'Define lead data logging workflow'] },
     
     // Week 2
@@ -150,22 +148,22 @@ export async function seedRoadmap() {
     }
   }
 
-  // ------------------------------------------------------------
-  // MONTH 2: APIs, Webhooks & Security (4 Weeks)
-  // ------------------------------------------------------------
+  // ============================================================
+  // MONTH 2: APIs, Webhooks & Security (4 Weeks) — EXACT FROM IMAGE 2
+  // ============================================================
   const [m2] = await db.insert(roadmapMonths).values({
     monthNumber: 2,
     title: 'APIs, Webhooks & Security',
-    subtitle: 'Connecting Systems Securely',
+    subtitle: 'Connect automation with real services, handle data through APIs, webhooks & keep everything secure.',
     durationWeeks: '4 weeks',
-    keyOutput: 'API integration with webhook (e.g., GitHub or Stripe webhook to database)',
+    keyOutput: 'Mini Project — API + Webhook Integration (New Google Form Submission -> Sheets + Email Notification)',
   }).returning();
 
   const m2Weeks = [
-    { weekNumber: 5, title: 'Week 5 – REST API Basics & Structure' },
-    { weekNumber: 6, title: 'Week 6 – HTTP Methods & Postman Testing' },
-    { weekNumber: 7, title: 'Week 7 – OAuth 2.0 & Secrets Management' },
-    { weekNumber: 8, title: 'Week 8 – Webhooks & Signature Verification' },
+    { weekNumber: 5, title: 'Week 1 – HTTP & APIs (HTTP basics, public APIs, Postman)' },
+    { weekNumber: 6, title: 'Week 2 – Webhooks & OAuth (n8n Webhooks, OAuth 2.0 flow)' },
+    { weekNumber: 7, title: 'Week 3 – Security & Best Practices (env vars, CORS, rate limiting)' },
+    { weekNumber: 8, title: 'Week 4 – Project + Review (Build, test, deploy & document mini project)' },
   ];
 
   const w2Ids: Record<number, string> = {};
@@ -179,10 +177,12 @@ export async function seedRoadmap() {
   }
 
   const m2Tasks = [
-    { week: 5, order: 1, priority: 'MASTER' as const, duration: '1 week', title: 'REST API Basics & Endpoint Structure', desc: 'Understand endpoints, JSON payloads, headers, query params, and HTTP status codes.', subtopics: ['Understand API client-server architecture', 'Inspect request headers & JSON response body', 'Master status codes (200, 201, 400, 401, 404, 500)'] },
-    { week: 6, order: 2, priority: 'MASTER' as const, duration: '1 week', title: 'HTTP Methods & Postman Testing', desc: 'Master GET, POST, PUT, DELETE requests and build Postman API test collections.', subtopics: ['Test GET and POST endpoints in Postman', 'Set up Postman environment variables', 'Write API response test assertions'] },
-    { week: 7, order: 3, priority: 'MASTER' as const, duration: '1 week', title: 'OAuth 2.0 & Secrets Management', desc: 'Understand OAuth 2.0 authorization code flow, tokens, and secret vault storage.', subtopics: ['Understand client ID, client secret, & access tokens', 'Handle refresh token rotation', 'Store API keys in environment variables'] },
-    { week: 8, order: 4, priority: 'MASTER' as const, duration: '1 week', title: 'Webhooks & HMAC Signature Verification', desc: 'Receive real-time webhooks (Stripe/GitHub) and verify SHA256 signatures.', subtopics: ['Configure incoming webhook listeners', 'Understand HMAC SHA256 signature verification', 'Prevent replay attacks & handle payload delivery'] },
+    { week: 5, order: 1, priority: 'MASTER' as const, duration: '5 Days', title: '1. HTTP Fundamentals', desc: 'API ka matlab hota hai — doosre application se baat karna. HTTP is the communication language.', subtopics: ['HTTP methods: GET, POST, PUT, DELETE', 'Headers (Content-Type, Authorization)', 'Body (JSON data)', 'Query parameters (?id=123) & Path parameters (/users/123)', 'Status codes (200, 400, 401, 500)'] },
+    { week: 5, order: 2, priority: 'IMPORTANT' as const, duration: '1 Week', title: '2. APIs & Postman', desc: 'APIs se apps data share karti hain. Postman tumhe API testing aur debugging mein help karta hai.', subtopics: ['Postman install & basic interface exploration', 'GET request sending (public APIs: JSONPlaceholder, ReqRes, GitHub API)', 'POST request sending (data payload)', 'Headers & Authorization token setup', 'Response JSON format understanding & Postman Collections'] },
+    { week: 6, order: 3, priority: 'MASTER' as const, duration: '5 Days', title: '3. Webhooks', desc: 'Webhooks ka matlab hai — jab koi event hota hai, to wo API ko automatically notify karta hai.', subtopics: ['How Webhooks work (External Service -> Webhook POST -> n8n Workflow)', 'Example Use Cases: New form submission, New e-commerce order, New user signup, GitHub push', 'Setting up Webhook trigger node in n8n', 'Webhook URL verification & payload parsing'] },
+    { week: 6, order: 4, priority: 'MASTER' as const, duration: '5 Days', title: '4. OAuth 2.0', desc: 'OAuth 2.0 se tum secure tareeke se user ka data access kar sakte ho (without sharing passwords).', subtopics: ['Authorization flow (client -> user -> provider -> access token)', 'Access token & refresh token rotation', 'Scopes & permissions management', 'Redirect URI setup', 'Using OAuth in APIs (Google OAuth, GitHub OAuth)'] },
+    { week: 7, order: 5, priority: 'IMPORTANT' as const, duration: '4 Days', title: '5. Security & Best Practices', desc: 'Security yahan bohot important hai. Galat handling se data leak ho sakta hai.', subtopics: ['Environment variables (API keys ko hide karna)', 'HTTPS secure connection enforcement', 'Webhook signature verification (HMAC SHA256)', 'Input validation & Rate limiting', 'CORS (cross-origin requests)'] },
+    { week: 8, order: 6, priority: 'MASTER' as const, duration: '1 Week', title: '6. Mini Project – API + Webhook Integration', desc: 'Build real project: "New Google Form Submission -> Save to Google Sheets + Send Email Notification".', subtopics: ['Google Form setup (sample form)', 'n8n Webhook trigger node configuration', 'Google Sheets node setup (save submission data)', 'Gmail node setup (send email notification)', 'Testing end-to-end form submit & error handling'] },
   ];
 
   for (const t of m2Tasks) {
@@ -206,38 +206,38 @@ export async function seedRoadmap() {
 
     const [ass] = await db.insert(assessments).values({
       taskId: task.id,
-      title: `${t.title} API Quiz`,
-      description: `Test API & authentication concepts.`,
+      title: `${t.title} Quiz`,
+      description: `Test core API & security knowledge for ${t.title}.`,
       passingScore: 80,
     }).returning();
 
     await db.insert(assessmentQuestions).values({
       assessmentId: ass.id,
-      questionText: `Which HTTP verb should be used to update an existing database resource?`,
-      optionsJson: JSON.stringify([`PUT / PATCH`, `GET`, `POST`, `DELETE`]),
+      questionText: `Which HTTP status code indicates successful request execution?`,
+      optionsJson: JSON.stringify([`200 OK`, `400 Bad Request`, `401 Unauthorized`, `500 Internal Server Error`]),
       correctAnswerIndex: 0,
-      answerExplanation: `PUT replaces a resource, while PATCH updates specific fields of a resource.`,
+      answerExplanation: `200 OK indicates that the request was processed successfully by the server.`,
       orderIndex: 1,
     });
   }
 
-  // ------------------------------------------------------------
-  // MONTH 3: Logic, Databases + Error Handling (4.5 Weeks / ~27 Days)
-  // ------------------------------------------------------------
+  // ============================================================
+  // MONTH 3: Logic, Databases + Error Handling (4.5 Weeks / ~27 Days) — EXACT FROM IMAGE 3
+  // ============================================================
   const [m3] = await db.insert(roadmapMonths).values({
     monthNumber: 3,
     title: 'Logic, Databases + Error Handling',
-    subtitle: 'Build Smarter Workflows with Data, Logic and Reliability',
+    subtitle: 'Build smarter workflows with data, logic and reliability.',
     durationWeeks: '4.5 weeks (~27 Days)',
     keyOutput: 'Database-driven workflow with logic, error retries & persistence',
   }).returning();
 
   const m3Weeks = [
-    { weekNumber: 9, title: 'Week 1 (Days 1–5): Logic & Flow' },
-    { weekNumber: 10, title: 'Week 2 (Days 6–10): Databases Basics' },
-    { weekNumber: 11, title: 'Week 3 (Days 11–15): Integrations + Logic' },
-    { weekNumber: 12, title: 'Week 4 (Days 16–20): Error Handling & Reliability' },
-    { weekNumber: 13, title: 'Week 5 (Days 21–27): Project + Review' },
+    { weekNumber: 9, title: 'Week 1 – Logic & Flow (IF/Switch/Filter/Loop)' },
+    { weekNumber: 10, title: 'Week 2 – Database Basics (PostgreSQL/Supabase setup & CRUD)' },
+    { weekNumber: 11, title: 'Week 3 – Transactions & Indexing (Optimization & data flow)' },
+    { weekNumber: 12, title: 'Week 4 – Error Handling (Retries, rate limiting, logging)' },
+    { weekNumber: 13, title: 'Week 4.5 – Integration Project (End-to-end system)' },
   ];
 
   const w3Ids: Record<number, string> = {};
@@ -251,11 +251,11 @@ export async function seedRoadmap() {
   }
 
   const m3Tasks = [
-    { week: 9, order: 1, priority: 'MASTER' as const, duration: '1 week', title: 'Logic & Data Flow (IF/Switch/Filter/Loop)', desc: 'Teach your automation to think, decide and handle different situations.', subtopics: ['Master IF / Switch / Merge / Filter nodes', 'Loop Over Items (for list processing)', 'Data transformation & JSON data manipulation', 'Conditional branching logic'] },
-    { week: 10, order: 2, priority: 'MASTER' as const, duration: '1.5 weeks', title: 'Databases (PostgreSQL / Supabase & SQL)', desc: 'Store, fetch and manage your data like a pro using PostgreSQL & Supabase.', subtopics: ['PostgreSQL & Supabase basics setup', 'Database nodes usage in n8n', 'Schema design (tables & relationships)', 'SQL queries (SELECT, INSERT, UPDATE, DELETE)', 'ACID Transactions (commit/rollback) & Indexing basics'] },
-    { week: 11, order: 3, priority: 'MASTER' as const, duration: '1 week', title: 'Integrations + Advanced Logic', desc: 'Build multi-step workflows connecting live databases to API integrations.', subtopics: ['Multi-step database workflows', 'Handling transactional data flow', 'Performance testing & delay nodes', 'State management across workflow steps'] },
-    { week: 12, order: 4, priority: 'MASTER' as const, duration: '1 week', title: 'Error Handling & Reliability', desc: 'Handle failures and keep your workflow rock stable.', subtopics: ['Error Trigger & Error Workflows', 'Exponential Retry Logic', 'Rate limiting & API delays', 'Queue processing & graceful fallback'] },
-    { week: 13, order: 5, priority: 'IMPORTANT' as const, duration: '1 week', title: 'Month 3 Mini Project & Review', desc: 'Build a database-driven automation project (e.g. Lead Tracker or Simple CRM).', subtopics: ['Connect incoming form to database', 'Add status tracking & automated emails', 'Add error retries & logging', 'Deploy & test edge cases'] },
+    { week: 9, order: 1, priority: 'MASTER' as const, duration: '1 Week', title: '1. Logic & Data Flow', desc: 'Teach your automation to think, decide and handle different situations.', subtopics: ['IF / Switch / Merge / Filter nodes', 'Loop Over Items (for lists)', 'Data transformation (Set/Function node)', 'Working with JSON data', 'Conditional logic (if/else like flow)'] },
+    { week: 10, order: 2, priority: 'MASTER' as const, duration: '1.5 Weeks', title: '2. Databases (PostgreSQL / Supabase & SQL)', desc: 'Store, fetch and manage your data like a pro.', subtopics: ['PostgreSQL / Supabase basics setup', 'Database nodes in n8n', 'Schema design (tables & relationships)', 'SQL queries (SELECT, INSERT, UPDATE, DELETE)', 'Transactions (commit/rollback) & Indexing basics'] },
+    { week: 11, order: 3, priority: 'MASTER' as const, duration: '1 Week', title: '3. Transactions & Query Optimization', desc: 'Execute atomic database transactions and optimize query performance.', subtopics: ['ACID Transactions (commit/rollback)', 'Indexing basics & optimization', 'Building multi-step database workflows', 'Performance testing n8n DB nodes'] },
+    { week: 12, order: 4, priority: 'MASTER' as const, duration: '1 Week', title: '4. Error Handling & Reliability', desc: 'Handle failures, keep your workflow stable, and alert on errors.', subtopics: ['Error Trigger / Error Workflow setup', 'Retry Logic (exponential backoff)', 'Rate Limiting & Queues (basics)', 'Logging & Notifications (Slack/Email)', 'Graceful fallback responses'] },
+    { week: 13, order: 5, priority: 'IMPORTANT' as const, duration: '5 Days', title: '5. Month 3 Mini Project & End-to-End System', desc: 'Build a database-driven system (e.g. Lead Tracker, Simple CRM, or Payment Webhook).', subtopics: ['Connect contact form -> save to database', 'Lead tracker with status update', 'Gmail -> save attachments to DB', 'Payment webhook -> update order status', 'Simple CRM (add/edit/delete contacts)'] },
   ];
 
   for (const t of m3Tasks) {
@@ -279,7 +279,7 @@ export async function seedRoadmap() {
 
     const [ass] = await db.insert(assessments).values({
       taskId: task.id,
-      title: `${t.title} Logic Assessment`,
+      title: `${t.title} Assessment`,
       description: `Verify database & logic flow control knowledge.`,
       passingScore: 80,
     }).returning();
@@ -299,23 +299,22 @@ export async function seedRoadmap() {
     });
   }
 
-  // ------------------------------------------------------------
-  // MONTH 4: JavaScript Basics + Custom Code (4.5 Weeks / ~27 Days)
-  // ------------------------------------------------------------
+  // ============================================================
+  // MONTH 4: JavaScript Basics + Custom Code (4.5 Weeks / ~27 Days) — EXACT FROM IMAGE 4
+  // ============================================================
   const [m4] = await db.insert(roadmapMonths).values({
     monthNumber: 4,
     title: 'JavaScript Basics + Custom Code',
-    subtitle: 'Give Yourself the Power to Build Custom Logic',
+    subtitle: 'Learn JavaScript — the language that gives you control, flexibility and power to build custom logic inside your automations.',
     durationWeeks: '4.5 weeks (~27 Days)',
-    keyOutput: 'Custom Code node with fetch/axios API integration',
+    keyOutput: 'Mini Project – Custom API + JavaScript (Real-World Data Fetcher & n8n Custom Code Node)',
   }).returning();
 
   const m4Weeks = [
-    { weekNumber: 14, title: 'Week 1 (Days 1–7): JavaScript Fundamentals' },
-    { weekNumber: 15, title: 'Week 2 (Days 8–12): Arrays & Objects' },
-    { weekNumber: 16, title: 'Week 3 (Days 13–14): JSON Handling in Code' },
-    { weekNumber: 17, title: 'Week 4 (Days 15–21): Custom API Requests (fetch/axios)' },
-    { weekNumber: 18, title: 'Week 5 (Days 22–27): Custom API Integration Hub Project' },
+    { weekNumber: 14, title: 'Week 1 (Days 1–7): JS Basics & Functions' },
+    { weekNumber: 15, title: 'Week 2 (Days 8–14): Arrays & Objects' },
+    { weekNumber: 16, title: 'Week 3 (Days 15–21): Loops & JSON Handling' },
+    { weekNumber: 17, title: 'Week 4 (Days 22–27): Custom API Requests (fetch/axios) & Mini Project' },
   ];
 
   const w4Ids: Record<number, string> = {};
@@ -329,11 +328,12 @@ export async function seedRoadmap() {
   }
 
   const m4Tasks = [
-    { week: 14, order: 1, priority: 'MASTER' as const, duration: '1.5 weeks', title: 'JavaScript Fundamentals', desc: 'Learn core concepts: variables (let/const/var), data types, operators, functions, and scoping.', subtopics: ['Variables & data types (string, number, boolean)', 'Operators (arithmetic, comparison, logical)', 'Functions (normal, arrow, return values)', 'Block & function scope'] },
-    { week: 15, order: 2, priority: 'IMPORTANT' as const, duration: '5 days', title: 'Arrays & Objects in JavaScript', desc: 'Master essential data structures: array methods (push, map, filter, find) and object key-values.', subtopics: ['Array transformations (map, filter, find, reduce)', 'Object key:value access & iteration', 'Nested objects & array structures', 'Destructuring assignment'] },
-    { week: 16, order: 3, priority: 'IMPORTANT' as const, duration: '2 days', title: 'JSON Handling in Code', desc: 'Parse, modify, and stringify JSON data received from web APIs.', subtopics: ['JSON.parse() — convert string to object', 'JSON.stringify() — convert object to string', 'Accessing deeply nested API responses', 'Validating JSON payloads'] },
-    { week: 17, order: 4, priority: 'MASTER' as const, duration: '1 week', title: 'Custom API Requests (fetch/axios)', desc: 'Make programmatic HTTP requests (GET, POST, PUT, DELETE) with headers, authorization, and try/catch.', subtopics: ['Native fetch API & Axios library', 'Headers & Bearer token authorization', 'Error handling with try/catch blocks', 'Connecting real APIs (e.g. JSONPlaceholder)'] },
-    { week: 18, order: 5, priority: 'MASTER' as const, duration: '1 week', title: 'Custom API Integration Hub (Project)', desc: 'Connect multiple APIs and manage responses from a single unified interface.', subtopics: ['Multi-API request handler', 'Rate limiting & error handling in JS', 'Building a clean dashboard view', 'Saving API response logs to database'] },
+    { week: 14, order: 1, priority: 'MASTER' as const, duration: '1.5 Weeks', title: '1. JavaScript Fundamentals', desc: 'Learn core concepts of JS to write logic, handle data, and work with APIs.', subtopics: ['Variables (let, const, var)', 'Data types (string, number, boolean, etc.)', 'Operators (arithmetic, comparison, logical)', 'Functions (normal, arrow, return)', 'Scope (block & function scope)'] },
+    { week: 15, order: 2, priority: 'IMPORTANT' as const, duration: '5 Days', title: '2. Arrays & Objects', desc: 'Master the most used data structures in JavaScript to handle real-world data.', subtopics: ['Arrays (methods: push, map, filter, find, etc.)', 'Objects (key:value, access, loop)', 'Nested objects & arrays', 'Destructuring assignment'] },
+    { week: 16, order: 3, priority: 'IMPORTANT' as const, duration: '3 Days', title: '3. Loops', desc: 'Repeat tasks without writing the same code again and again.', subtopics: ['for loop & while loop', 'for...of (for arrays)', 'for...in (for objects)', 'break & continue statements'] },
+    { week: 16, order: 4, priority: 'IMPORTANT' as const, duration: '2 Days', title: '4. JSON Handling in Code', desc: 'APIs send data in JSON format. Learn how to read, modify and send JSON in JavaScript.', subtopics: ['JSON.parse() — convert string to object', 'JSON.stringify() — convert object to string', 'Accessing nested data', 'Working with API responses'] },
+    { week: 17, order: 5, priority: 'MASTER' as const, duration: '1 Week', title: '5. Custom API Requests (fetch/axios)', desc: 'Learn how to make real API calls, send data and handle responses using fetch or axios.', subtopics: ['GET, POST, PUT, DELETE requests', 'Headers & Authorization (API keys)', 'Error handling (try/catch)', 'Working with real APIs (JSONPlaceholder)'] },
+    { week: 17, order: 6, priority: 'MASTER' as const, duration: '1 Month Project', title: '6. Mini Project – Custom API + JavaScript', desc: 'Build a Real-World Data Fetcher: fetch API, display on UI, search/filter, try/catch error handling, n8n custom code.', subtopics: ['Use public API (JSONPlaceholder)', 'Display data on UI', 'Add search/filter using JS', 'Handle errors with try/catch', 'Use custom code in n8n'] },
   ];
 
   for (const t of m4Tasks) {
@@ -372,23 +372,23 @@ export async function seedRoadmap() {
     });
   }
 
-  // ------------------------------------------------------------
-  // MONTH 5: Hybrid Approach + AI Integration (4.5 Weeks / ~27 Days)
-  // ------------------------------------------------------------
+  // ============================================================
+  // MONTH 5: Hybrid Approach + AI Integration (4.5 Weeks / ~27 Days) — EXACT FROM IMAGE 5
+  // ============================================================
   const [m5] = await db.insert(roadmapMonths).values({
     monthNumber: 5,
     title: 'Hybrid Approach + AI Integration',
-    subtitle: 'Combine Automation Tools, Code & AI to Build Intelligent Workflows',
+    subtitle: 'Combine the power of automation tools, code and AI to build smarter, intelligent workflows that solve real problems.',
     durationWeeks: '4.5 weeks (~27 Days)',
-    keyOutput: 'AI-powered workflow with Vector DB, RAG & Guardrails',
+    keyOutput: 'Build a Real Workflow Project (AI Email Assistant / Customer Support Bot / Lead Qualification)',
   }).returning();
 
   const m5Weeks = [
-    { weekNumber: 19, title: 'Week 1 (Days 1–5): Prompt Engineering' },
-    { weekNumber: 20, title: 'Week 2 (Days 6–10): n8n + Code Integration' },
-    { weekNumber: 21, title: 'Week 3 (Days 11–15): Vector DB + RAG Concepts' },
-    { weekNumber: 22, title: 'Week 4 (Days 16–20): Function Calling & AI Validation' },
-    { weekNumber: 23, title: 'Week 5 (Days 21–27): Agent Architecture, Guardrails & Cost Control' },
+    { weekNumber: 18, title: 'Week 1 (Days 1–5): Prompt Engineering' },
+    { weekNumber: 19, title: 'Week 2 (Days 6–10): n8n + Code Integration' },
+    { weekNumber: 20, title: 'Week 3 (Days 11–15): Vector DB + RAG Concepts' },
+    { weekNumber: 21, title: 'Week 4 (Days 16–20): Function Calling & AI Validation' },
+    { weekNumber: 22, title: 'Week 5 (Days 21–27): Agent Architecture, Guardrails, Cost Control & Real Project' },
   ];
 
   const w5Ids: Record<number, string> = {};
@@ -402,14 +402,15 @@ export async function seedRoadmap() {
   }
 
   const m5Tasks = [
-    { week: 19, order: 1, priority: 'MASTER' as const, duration: '5 days', title: 'Prompt Engineering', desc: 'Master prompt structures (role, task, context, format), system vs user prompts, and few-shot CoT prompting.', subtopics: ['Prompt structure & role prompting', 'System vs user prompt isolation', 'Few-shot & Chain-of-Thought prompting', 'Prompt optimization techniques'] },
-    { week: 20, order: 2, priority: 'IMPORTANT' as const, duration: '4 days', title: 'n8n + Code Integration', desc: 'Combine n8n visual workflows with custom Code Nodes for flexible data transformation.', subtopics: ['Using Code Node in n8n', 'Passing data between nodes & code', 'Error handling in custom scripts', 'Real-world hybrid workflow example'] },
-    { week: 21, order: 3, priority: 'MASTER' as const, duration: '1 week', title: 'Vector DB / Knowledge Base', desc: 'Store data in a vector database (Pinecone/Supabase pgvector) for semantic AI search.', subtopics: ['What is a vector database?', 'Pinecone / Supabase setup & embeddings', 'Creating & storing text embeddings', 'Using knowledge base in workflows'] },
-    { week: 21, order: 4, priority: 'MASTER' as const, duration: '1 week', title: 'RAG Concepts (Retrieval-Augmented Generation)', desc: 'Combine your custom knowledge base with LLMs to provide accurate, context-aware answers.', subtopics: ['Understanding RAG architecture', 'Document chunking & embedding strategies', 'Retrieval process & context injection', 'Building a RAG workflow in n8n'] },
-    { week: 22, order: 5, priority: 'IMPORTANT' as const, duration: '1 week', title: 'Function Calling / Tool Use', desc: 'Configure LLMs to invoke external APIs, tools, or databases to execute real-world actions.', subtopics: ['Function calling specifications (JSON schema)', 'Connecting APIs as tools to LLM', 'Tool selection & parameter extraction', 'Building multi-step AI tool actions'] },
-    { week: 22, order: 6, priority: 'MASTER' as const, duration: '4 days', title: 'AI Evaluation + Validation', desc: 'Ensure AI outputs are safe, structured, and consistent before using in workflows.', subtopics: ['Testing AI responses against test cases', 'Structured JSON output validation (Zod)', 'Handling AI hallucinations & edge cases', 'Fallback responses & prompt iteration'] },
-    { week: 23, order: 7, priority: 'MASTER' as const, duration: '1 week', title: 'Agent Architecture + Guardrails', desc: 'Build autonomous AI agent loops (plan -> act -> observe -> repeat) with safety guardrails.', subtopics: ['Agent loop architecture', 'Memory & context management', 'Guardrails & safety rules', 'Human-in-the-loop approval workflows'] },
-    { week: 23, order: 8, priority: 'BASICS_ENOUGH' as const, duration: '3 days', title: 'Cost Control & Optimization', desc: 'Track token usage and optimize LLM API costs in production automations.', subtopics: ['Tracking usage & costs (OpenAI/Pinecone)', 'Prompt token optimization & caching', 'Setting API usage rate limits & alerts', 'Monitoring cost in dashboard'] },
+    { week: 18, order: 1, priority: 'MASTER' as const, duration: '5 Days', title: '1. Prompt Engineering', desc: 'Learn how to write effective prompts so AI gives accurate, useful and consistent results.', subtopics: ['Prompt structure (role, task, context, format)', 'System vs user prompts', 'Few-shot & chain-of-thought prompting', 'Prompt optimization techniques'] },
+    { week: 19, order: 2, priority: 'IMPORTANT' as const, duration: '4 Days', title: '2. n8n + Code Integration', desc: 'Learn how to combine n8n visual workflow with custom code for more flexibility and power.', subtopics: ['Using Code node in n8n', 'Passing data between nodes and code', 'Using external APIs in code', 'Error handling in custom code', 'Real-world hybrid workflow example'] },
+    { week: 20, order: 3, priority: 'MASTER' as const, duration: '1 Week', title: '3. Vector DB / Knowledge Base', desc: 'Store your data in a vector database so AI can search and retrieve relevant information.', subtopics: ['What is a vector database?', 'Pinecone / Supabase setup', 'Creating embeddings (OpenAI)', 'Storing & searching vectors', 'Using knowledge base in workflows'] },
+    { week: 20, order: 4, priority: 'MASTER' as const, duration: '1 Week', title: '4. RAG Concepts (Retrieval-Augmented Generation)', desc: 'Combine your data with LLMs so it can give accurate, context-aware answers.', subtopics: ['What is RAG (Retrieval-Augmented Generation)', 'Chunking & embedding (500-1000 chars)', 'Retrieval process', 'Building a simple RAG workflow in n8n', 'Use cases & limitations'] },
+    { week: 21, order: 5, priority: 'IMPORTANT' as const, duration: '1 Week', title: '5. Function Calling / Tool Use', desc: 'Let AI use external tools, APIs or functions to perform real actions.', subtopics: ['Function calling basics', 'Connecting APIs as tools', 'Tool selection & parameters', 'Building multi-step actions', 'Real-world examples (weather, email, calendar)'] },
+    { week: 21, order: 6, priority: 'MASTER' as const, duration: '4 Days', title: '6. AI Evaluation + Validation', desc: 'Make sure AI gives correct, safe and reliable results before using them in real workflows.', subtopics: ['Testing AI responses', 'Structured output validation', 'Handling hallucinations', 'Fallback responses & improvement', 'Prompt testing & improvement'] },
+    { week: 22, order: 7, priority: 'MASTER' as const, duration: '1 Week', title: '7. Agent Architecture + Guardrails', desc: 'Understand how AI agents work and how to make them safe, reliable and useful.', subtopics: ['Agent workflow (plan -> act -> observe -> repeat)', 'Memory & context management', 'Tool permissions', 'Guardrails & safety rules', 'Human-in-the-loop (optional)'] },
+    { week: 22, order: 8, priority: 'BASICS_ENOUGH' as const, duration: '3 Days', title: '8. Cost Control', desc: 'Use AI and APIs efficiently so you don\'t get unexpected high bills.', subtopics: ['Tracking usage & costs (OpenAI, Pinecone, etc.)', 'Optimizing prompts (shorter, smarter)', 'Caching & batching requests', 'Setting usage limits', 'Monitoring with logs/alerts'] },
+    { week: 22, order: 9, priority: 'MASTER' as const, duration: '1 Week Project', title: '9. Build a Real Workflow Project', desc: 'Apply everything together by building a complete real-world automation (AI Email Assistant, Support Bot, or Lead Qualification).', subtopics: ['n8n + AI + Database integration', 'Error handling & structured validation', 'Logging & monitoring', 'Clean UI / webhook integration', 'Create GitHub repo + demo'] },
   ];
 
   for (const t of m5Tasks) {
@@ -455,9 +456,9 @@ export async function seedRoadmap() {
     }
   }
 
-  // ------------------------------------------------------------
+  // ============================================================
   // MONTH 6: Real Projects + Testing + Portfolio + Job Prep (4.5 Weeks)
-  // ------------------------------------------------------------
+  // ============================================================
   const [m6] = await db.insert(roadmapMonths).values({
     monthNumber: 6,
     title: 'Real Projects + Testing + Portfolio + Job Prep',
@@ -467,11 +468,11 @@ export async function seedRoadmap() {
   }).returning();
 
   const m6Weeks = [
-    { weekNumber: 24, title: 'Week 1 (Days 1–5): Project 1 — Lead Management System' },
-    { weekNumber: 25, title: 'Week 2 (Days 6–10): Project 2 — E-commerce Order Automation' },
-    { weekNumber: 26, title: 'Week 3 (Days 11–15): Project 3 — AI Email Assistant with RAG' },
-    { weekNumber: 27, title: 'Week 4 (Days 16–20): Project 4 — Social Media Auto Poster' },
-    { weekNumber: 28, title: 'Week 5 (Days 21–27): Project 5 & 6 — Expense Tracker & Custom API Hub + Portfolio' },
+    { weekNumber: 23, title: 'Week 1 (Days 1–5): Project 1 — Lead Management System' },
+    { weekNumber: 24, title: 'Week 2 (Days 6–10): Project 2 — E-commerce Order Automation' },
+    { weekNumber: 25, title: 'Week 3 (Days 11–15): Project 3 — AI Email Assistant with RAG' },
+    { weekNumber: 26, title: 'Week 4 (Days 16–20): Project 4 — Social Media Auto Poster' },
+    { weekNumber: 27, title: 'Week 5 (Days 21–27): Project 5 & 6 — Expense Tracker & Custom API Hub + Portfolio' },
   ];
 
   const w6Ids: Record<number, string> = {};
@@ -485,12 +486,12 @@ export async function seedRoadmap() {
   }
 
   const m6Tasks = [
-    { week: 24, order: 1, priority: 'MASTER' as const, duration: '1 week', title: '1. Lead Management System (Project 1)', desc: 'Automate lead collection, enrichment, data validation, database storage, and email/WhatsApp follow-ups.', subtopics: ['Webhook + form integration (Typeform/Google Forms)', 'Data validation & enrichment (Clearbit/Hunter.io)', 'Save to PostgreSQL/Supabase database', 'Auto email/WhatsApp follow-ups', 'Lead tracking dashboard'] },
-    { week: 25, order: 2, priority: 'MASTER' as const, duration: '1 week', title: '2. E-commerce Order Automation (Project 2)', desc: 'Sync orders, update inventory, and send notifications automatically across Shopify/Daraz.', subtopics: ['API integration (Shopify/Daraz)', 'Order data processing & transformation', 'Update inventory in database', 'Send customer & admin notifications', 'Handle errors & retry logic'] },
-    { week: 26, order: 3, priority: 'MASTER' as const, duration: '1 week', title: '3. AI Email Assistant with RAG (Project 3)', desc: 'Create an AI assistant that answers questions using custom knowledge base documents.', subtopics: ['Vector database setup (Pinecone/Supabase)', 'Document loading & chunking', 'RAG retrieval workflow in n8n', 'OpenAI API integration', 'Build chat UI interface'] },
-    { week: 27, order: 4, priority: 'IMPORTANT' as const, duration: '1 week', title: '4. Social Media Auto Poster (Project 4)', desc: 'Automatically generate and post dynamic content to social media platforms.', subtopics: ['Social media APIs (Twitter/X, LinkedIn)', 'Dynamic AI content generation + templates', 'Scheduling & posting queue', 'Error handling & retry logs'] },
-    { week: 28, order: 5, priority: 'IMPORTANT' as const, duration: '1 week', title: '5. Expense Tracker System (Project 5)', desc: 'Track expenses, categorize receipts via AI rules, store in DB, and generate reports.', subtopics: ['Data input (Form / Email / CSV)', 'Categorization using AI rules', 'Database storage & query analytics', 'Generate charts & reports'] },
-    { week: 28, order: 6, priority: 'MASTER' as const, duration: '1 week', title: '6. Custom API Integration Hub (Project 6)', desc: 'Connect multiple APIs and manage them from a single unified control hub.', subtopics: ['Multi-API integration', 'API key & OAuth security', 'Vanilla JS dashboard interface', 'Save and manage API response logs'] },
+    { week: 23, order: 1, priority: 'MASTER' as const, duration: '1 week', title: '1. Lead Management System (Project 1)', desc: 'Automate lead collection, enrichment, data validation, database storage, and email/WhatsApp follow-ups.', subtopics: ['Webhook + form integration (Typeform/Google Forms)', 'Data validation & enrichment (Clearbit/Hunter.io)', 'Save to PostgreSQL/Supabase database', 'Auto email/WhatsApp follow-ups', 'Lead tracking dashboard'] },
+    { week: 24, order: 2, priority: 'MASTER' as const, duration: '1 week', title: '2. E-commerce Order Automation (Project 2)', desc: 'Sync orders, update inventory, and send notifications automatically across Shopify/Daraz.', subtopics: ['API integration (Shopify/Daraz)', 'Order data processing & transformation', 'Update inventory in database', 'Send customer & admin notifications', 'Handle errors & retry logic'] },
+    { week: 25, order: 3, priority: 'MASTER' as const, duration: '1 week', title: '3. AI Email Assistant with RAG (Project 3)', desc: 'Create an AI assistant that answers questions using custom knowledge base documents.', subtopics: ['Vector database setup (Pinecone/Supabase)', 'Document loading & chunking', 'RAG retrieval workflow in n8n', 'OpenAI API integration', 'Build chat UI interface'] },
+    { week: 26, order: 4, priority: 'IMPORTANT' as const, duration: '1 week', title: '4. Social Media Auto Poster (Project 4)', desc: 'Automatically generate and post dynamic content to social media platforms.', subtopics: ['Social media APIs (Twitter/X, LinkedIn)', 'Dynamic AI content generation + templates', 'Scheduling & posting queue', 'Error handling & retry logs'] },
+    { week: 27, order: 5, priority: 'IMPORTANT' as const, duration: '1 week', title: '5. Expense Tracker System (Project 5)', desc: 'Track expenses, categorize receipts via AI rules, store in DB, and generate reports.', subtopics: ['Data input (Form / Email / CSV)', 'Categorization using AI rules', 'Database storage & query analytics', 'Generate charts & reports'] },
+    { week: 27, order: 6, priority: 'MASTER' as const, duration: '1 week', title: '6. Custom API Integration Hub (Project 6)', desc: 'Connect multiple APIs and manage them from a single unified control hub.', subtopics: ['Multi-API integration', 'API key & OAuth security', 'Vanilla JS dashboard interface', 'Save and manage API response logs'] },
   ];
 
   for (const t of m6Tasks) {
@@ -534,16 +535,16 @@ export async function seedRoadmap() {
     });
   }
 
-  // ------------------------------------------------------------
+  // ============================================================
   // 6 Exact Projects (Mapped to Months 1-6)
-  // ------------------------------------------------------------
+  // ============================================================
   const projectList = [
     { projectNumber: 1, monthId: m1.id, title: 'Gmail Auto-Responder', weekRange: 'Month 1 (Week 4)', description: 'Save email attachments to Google Drive, notify Slack, and log results in Google Sheets.', techStack: 'n8n, Gmail API, Google Drive, Slack, Google Sheets' },
     { projectNumber: 2, monthId: m2.id, title: 'Lead Capture System', weekRange: 'Month 2 (Week 8)', description: 'Webhook + Form integration to enrich lead data and save to PostgreSQL database.', techStack: 'n8n, REST API, Webhooks, Supabase / PostgreSQL' },
     { projectNumber: 3, monthId: m3.id, title: 'CRM / Task Manager DB', weekRange: 'Month 3 (Week 13)', description: 'Database-driven CRM with custom logic, status transitions, and error retry triggers.', techStack: 'PostgreSQL, Supabase, n8n, SQL' },
-    { projectNumber: 4, monthId: m4.id, title: 'Custom API Integration Hub', weekRange: 'Month 4 (Week 18)', description: 'Custom JavaScript code nodes with fetch/axios making external API requests.', techStack: 'JavaScript, fetch/axios, Node.js, n8n Code Node' },
-    { projectNumber: 5, monthId: m5.id, title: 'AI Support Bot (RAG)', weekRange: 'Month 5 (Week 23)', description: 'Vector DB + OpenAI embeddings + RAG retrieval + structured output validation.', techStack: 'OpenAI, Vector DB (Pinecone/Supabase), n8n, RAG' },
-    { projectNumber: 6, monthId: m6.id, title: 'E-commerce Order Automation', weekRange: 'Month 6 (Week 28)', description: 'Production suite automating order processing, inventory sync, and client notifications.', techStack: 'Next.js, n8n, Supabase, Shopify/Daraz API' },
+    { projectNumber: 4, monthId: m4.id, title: 'Custom API Integration Hub', weekRange: 'Month 4 (Week 17)', description: 'Custom JavaScript code nodes with fetch/axios making external API requests.', techStack: 'JavaScript, fetch/axios, Node.js, n8n Code Node' },
+    { projectNumber: 5, monthId: m5.id, title: 'AI Support Bot (RAG)', weekRange: 'Month 5 (Week 22)', description: 'Vector DB + OpenAI embeddings + RAG retrieval + structured output validation.', techStack: 'OpenAI, Vector DB (Pinecone/Supabase), n8n, RAG' },
+    { projectNumber: 6, monthId: m6.id, title: 'E-commerce Order Automation', weekRange: 'Month 6 (Week 27)', description: 'Production suite automating order processing, inventory sync, and client notifications.', techStack: 'Next.js, n8n, Supabase, Shopify/Daraz API' },
   ];
 
   for (const p of projectList) {
@@ -559,9 +560,9 @@ export async function seedRoadmap() {
     });
   }
 
-  // ------------------------------------------------------------
+  // ============================================================
   // Seed Skill Matrix Categories
-  // ------------------------------------------------------------
+  // ============================================================
   const skillCategories = [
     { category: 'Automation & n8n', title: 'n8n Workflows & Node Architecture', description: 'Nodes, triggers, webhooks, error retries, and execution logging.' },
     { category: 'APIs & Security', title: 'REST APIs & Security Protocols', description: 'HTTP verbs, Postman, OAuth 2.0, secrets management, and HMAC verification.' },
