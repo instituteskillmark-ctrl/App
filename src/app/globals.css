@@ -129,3 +129,11 @@ body {
   border-radius: 9999px;
   transition: width 0.4s ease;
 }
+
+/* Hide Next.js dev overlays / floating debug tool panels */
+nextjs-portal,
+[data-nextjs-dialog-overlay],
+[class*="nextjs-toast"],
+[data-nextjs-toast] {
+  display: none !important;
+}

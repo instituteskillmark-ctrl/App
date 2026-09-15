@@ -167,65 +167,115 @@ export default async function DashboardPage() {
 
         {/* ── Feature 1: Computed Current Month Tracker Card ── */}
         {currentMonthInfo && (
-          <div className="os-surface p-5 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <div className="section-label flex items-center gap-1.5 mb-1">
-                  <Map className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
-                  AUTO-TRACKED CURRENT MONTH
+          <div className="os-surface p-5 relative overflow-hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex-1 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <div className="section-label flex items-center gap-1.5 mb-1">
+                      <Map className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+                      AUTO-TRACKED CURRENT MONTH
+                    </div>
+                    <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      MONTH {currentMonthInfo.monthNumber} / 6 — {currentMonthInfo.title}
+                    </h3>
+                  </div>
+                  <Link
+                    href="/roadmap"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 transition shrink-0 self-start sm:self-center"
+                    style={{
+                      background: 'var(--surface-1)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '4px',
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    Go to Roadmap <ArrowRight className="w-3 h-3" />
+                  </Link>
                 </div>
-                <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  MONTH {currentMonthInfo.monthNumber} / 6 — {currentMonthInfo.title}
-                </h3>
-              </div>
-              <Link
-                href="/roadmap"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 transition shrink-0 self-start sm:self-center"
-                style={{
-                  background: 'var(--surface-1)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '4px',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                Go to Roadmap <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span style={{ color: 'var(--text-secondary)' }}>
-                  <span
-                    className="font-semibold"
-                    style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
-                  >
-                    {currentMonthInfo.completedTasks}
-                  </span>{' '}
-                  of{' '}
-                  <span
-                    className="font-semibold"
-                    style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
-                  >
-                    {currentMonthInfo.totalTasks}
-                  </span>{' '}
-                  topics complete
-                </span>
-                <span
-                  style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
-                  className="font-medium text-xs"
-                >
-                  {currentMonthInfo.percentComplete}%
-                </span>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span style={{ color: 'var(--text-secondary)' }}>
+                      <span
+                        className="font-semibold"
+                        style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+                      >
+                        {currentMonthInfo.completedTasks}
+                      </span>{' '}
+                      of{' '}
+                      <span
+                        className="font-semibold"
+                        style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+                      >
+                        {currentMonthInfo.totalTasks}
+                      </span>{' '}
+                      topics complete
+                    </span>
+                    <span
+                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                      className="font-medium text-xs"
+                    >
+                      {currentMonthInfo.percentComplete}%
+                    </span>
+                  </div>
+                  <div className="progress-bar-track" style={{ height: '6px' }}>
+                    <div
+                      className="progress-bar-fill"
+                      style={{
+                        width: `${currentMonthInfo.percentComplete}%`,
+                        background: 'var(--accent)',
+                        height: '100%',
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="progress-bar-track" style={{ height: '6px' }}>
-                <div
-                  className="progress-bar-fill"
-                  style={{
-                    width: `${currentMonthInfo.percentComplete}%`,
-                    background: 'var(--accent)',
-                    height: '100%',
-                  }}
-                />
+
+              {/* Decorative flat SVG illustration (Mountain Growth Path) */}
+              <div className="hidden md:flex items-center justify-center shrink-0 pl-3 border-l border-[var(--border)] opacity-85" aria-hidden="true">
+                <svg
+                  width="110"
+                  height="64"
+                  viewBox="0 0 110 64"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="shrink-0 select-none"
+                >
+                  {/* Mountain silhouettes */}
+                  <path
+                    d="M8 58L38 22L54 42L82 8L104 58H8Z"
+                    stroke="var(--border-strong)"
+                    strokeWidth="1.2"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M32 58L56 30L72 46L92 20L102 58"
+                    stroke="var(--border)"
+                    strokeWidth="1"
+                    strokeDasharray="2 2"
+                  />
+                  {/* Summit Flag */}
+                  <path
+                    d="M82 8V18M82 8L92 11.5L82 15"
+                    stroke="var(--accent)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  {/* Winding journey path */}
+                  <path
+                    d="M12 54C24 50 30 40 44 42C56 44 64 24 80 12"
+                    stroke="var(--accent)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeDasharray="3 3"
+                  />
+                  {/* Milestone nodes along path */}
+                  <circle cx="12" cy="54" r="2.5" fill="var(--surface-1)" stroke="var(--accent)" strokeWidth="1.2" />
+                  <circle cx="44" cy="42" r="2.5" fill="var(--surface-1)" stroke="var(--accent)" strokeWidth="1.2" />
+                  <circle cx="80" cy="12" r="3" fill="var(--accent)" />
+                </svg>
               </div>
             </div>
           </div>

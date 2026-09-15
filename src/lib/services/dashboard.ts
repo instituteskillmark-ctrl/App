@@ -1,6 +1,7 @@
 import { db } from '@/db';
 import {
   roadmapMonths,
+  roadmapWeeks,
   roadmapTasks,
   taskProgress,
   projects,
@@ -14,6 +15,7 @@ import { desc, eq } from 'drizzle-orm';
 export async function getDashboardStats(userId: string = 'default_user') {
   try {
     const allMonths = await db.select().from(roadmapMonths);
+    const allWeeks = await db.select().from(roadmapWeeks);
     const allTasks = await db.select().from(roadmapTasks);
     const allTaskProgress = await db
       .select()
@@ -69,6 +71,16 @@ export async function getDashboardStats(userId: string = 'default_user') {
     const currentMonthTasks = computedCurrentMonth
       ? allTasks.filter((t) => t.monthId === computedCurrentMonth.id)
       : [];
+
+    const weekMap = new Map(allWeeks.map((w) => [w.id, w.weekNumber]));
+
+    currentMonthTasks.sort((a, b) => {
+      const weekA = a.weekId ? (weekMap.get(a.weekId) ?? 0) : 0;
+      const weekB = b.weekId ? (weekMap.get(b.weekId) ?? 0) : 0;
+      if (weekA !== weekB) return weekA - weekB;
+      return a.orderIndex - b.orderIndex;
+    });
+
     const currentMonthCompletedCount = currentMonthTasks.filter((t) => {
       const p = progressMap.get(t.id);
       return p?.status === 'COMPLETED' || p?.status === 'VERIFIED';
@@ -96,23 +108,33 @@ export async function getDashboardStats(userId: string = 'default_user') {
         }
       : null;
 
-    // Find active or next task
-    let activeProgress = allTaskProgress.find((t) => t.status === 'IN_PROGRESS');
+    // Scope active or next task selection strictly to current (lowest incomplete) month
     let currentTask = null;
 
-    if (activeProgress) {
-      currentTask = allTasks.find((t) => t.id === activeProgress.taskId) || null;
-    }
+    if (currentMonthTasks.length > 0) {
+      // Priority 1: Topic already "IN_PROGRESS" in current month
+      currentTask = currentMonthTasks.find((t) => {
+        const p = progressMap.get(t.id);
+        return p?.status === 'IN_PROGRESS';
+      }) || null;
 
-    // If no task is marked IN_PROGRESS, pick the first NOT_STARTED task in order
-    if (!currentTask && allTasks.length > 0) {
-      const completedIds = new Set(completedTasks.map((t) => t.taskId));
-      const nextTask = allTasks.find((t) => !completedIds.has(t.id));
-      if (nextTask) {
-        currentTask = nextTask;
-      } else {
-        currentTask = allTasks[0];
+      // Priority 2: First "NOT_STARTED" topic in current month (in week/topic order)
+      if (!currentTask) {
+        currentTask = currentMonthTasks.find((t) => {
+          const p = progressMap.get(t.id);
+          return !p || p.status === 'NOT_STARTED';
+        }) || null;
       }
+
+      // Priority 3 / Fallback: Pick first unverified or first topic in current month
+      if (!currentTask) {
+        currentTask = currentMonthTasks.find((t) => {
+          const p = progressMap.get(t.id);
+          return p?.status !== 'VERIFIED';
+        }) || currentMonthTasks[0];
+      }
+    } else if (allTasks.length > 0) {
+      currentTask = allTasks[0];
     }
 
     let currentMonthName = 'Month 1';

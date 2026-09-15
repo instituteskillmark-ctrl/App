@@ -1,11 +1,12 @@
 import { db } from '@/db';
-import { roadmapMonths, roadmapTasks, taskProgress, assessmentAttempts, projects, projectProgress, studySessions } from '@/db/schema';
+import { roadmapMonths, roadmapWeeks, roadmapTasks, taskProgress, assessmentAttempts, projects, projectProgress, studySessions } from '@/db/schema';
 import { eq, desc, asc, and, lt } from 'drizzle-orm';
 import { calculateStreak } from './streak';
 
 export async function getSmartIntelligence(userId: string = 'default_user') {
   try {
     const allMonths = await db.select().from(roadmapMonths).orderBy(asc(roadmapMonths.monthNumber));
+    const allWeeks = await db.select().from(roadmapWeeks).orderBy(asc(roadmapWeeks.weekNumber));
     const allTasks = await db.select().from(roadmapTasks).orderBy(asc(roadmapTasks.orderIndex));
     const allProgress = await db.select().from(taskProgress).where(eq(taskProgress.userId, userId));
     const allAttempts = await db.select().from(assessmentAttempts).where(eq(assessmentAttempts.userId, userId)).orderBy(desc(assessmentAttempts.startedAt));
@@ -14,26 +15,68 @@ export async function getSmartIntelligence(userId: string = 'default_user') {
     const streakInfo = await calculateStreak(userId);
 
     const progressMap = new Map(allProgress.map(p => [p.taskId, p]));
-    const projectProgressMap = new Map(allProjectProgress.map(p => [p.projectId, p]));
+    const weekMap = new Map(allWeeks.map(w => [w.id, w.weekNumber]));
     const monthMap = new Map(allMonths.map(m => [m.id, m]));
 
-    // Find current active task (IN_PROGRESS or first NOT_STARTED in sequence)
-    let currentTask = allTasks.find(t => {
+    // Compute lowest incomplete month (month with at least one topic NOT VERIFIED)
+    let computedCurrentMonth = allMonths[0];
+    for (const m of allMonths) {
+      const mTasks = allTasks.filter(t => t.monthId === m.id);
+      const hasUnverified = mTasks.some(t => {
+        const p = progressMap.get(t.id);
+        return !p || p.status !== 'VERIFIED';
+      });
+      if (hasUnverified) {
+        computedCurrentMonth = m;
+        break;
+      }
+    }
+    if (!computedCurrentMonth && allMonths.length > 0) {
+      computedCurrentMonth = allMonths[allMonths.length - 1];
+    }
+
+    const currentMonthTasks = computedCurrentMonth
+      ? allTasks.filter(t => t.monthId === computedCurrentMonth.id)
+      : [];
+
+    currentMonthTasks.sort((a, b) => {
+      const weekA = a.weekId ? (weekMap.get(a.weekId) ?? 0) : 0;
+      const weekB = b.weekId ? (weekMap.get(b.weekId) ?? 0) : 0;
+      if (weekA !== weekB) return weekA - weekB;
+      return a.orderIndex - b.orderIndex;
+    });
+
+    let currentTask = currentMonthTasks.find(t => {
       const p = progressMap.get(t.id);
       return p?.status === 'IN_PROGRESS';
     });
 
     if (!currentTask) {
-      currentTask = allTasks.find(t => {
+      currentTask = currentMonthTasks.find(t => {
         const p = progressMap.get(t.id);
         return !p || p.status === 'NOT_STARTED';
-      }) || allTasks[0];
+      });
     }
 
-    const currentMonth = monthMap.get(currentTask.monthId);
+    if (!currentTask && currentMonthTasks.length > 0) {
+      currentTask = currentMonthTasks.find(t => {
+        const p = progressMap.get(t.id);
+        return p?.status !== 'VERIFIED';
+      }) || currentMonthTasks[0];
+    }
+
+    if (!currentTask && allTasks.length > 0) {
+      currentTask = allTasks[0];
+    }
+
+    if (!currentTask) {
+      return null;
+    }
+
+    const currentMonth = monthMap.get(currentTask.monthId) || computedCurrentMonth;
 
     // Identify corresponding project (1 to 6) based on month
-    const relevantProject = allProjects.find(p => p.monthId === currentTask?.monthId) || allProjects[0];
+    const relevantProject = allProjects.find(p => p.monthId === (currentTask.monthId || computedCurrentMonth?.id)) || allProjects[0];
 
     // Weakness Detection Engine
     const confirmedWeaknesses: { taskId: string; title: string; reason: string }[] = [];
