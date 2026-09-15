@@ -20,6 +20,8 @@ import {
   Activity,
   Target,
   ArrowUpRight,
+  Map,
+  ArrowRight,
 } from 'lucide-react';
 
 export const revalidate = 0;
@@ -69,6 +71,8 @@ export default async function DashboardPage() {
         projectNumber: intel.relevantProject.projectNumber,
       }
     : undefined;
+
+  const currentMonthInfo = stats.currentMonthInfo;
 
   return (
     <div className="flex-1 pb-16">
@@ -161,6 +165,72 @@ export default async function DashboardPage() {
           })}
         </div>
 
+        {/* ── Feature 1: Computed Current Month Tracker Card ── */}
+        {currentMonthInfo && (
+          <div className="os-surface p-5 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <div className="section-label flex items-center gap-1.5 mb-1">
+                  <Map className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+                  AUTO-TRACKED CURRENT MONTH
+                </div>
+                <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  MONTH {currentMonthInfo.monthNumber} / 6 — {currentMonthInfo.title}
+                </h3>
+              </div>
+              <Link
+                href="/roadmap"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 transition shrink-0 self-start sm:self-center"
+                style={{
+                  background: 'var(--surface-1)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '4px',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                Go to Roadmap <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span style={{ color: 'var(--text-secondary)' }}>
+                  <span
+                    className="font-semibold"
+                    style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+                  >
+                    {currentMonthInfo.completedTasks}
+                  </span>{' '}
+                  of{' '}
+                  <span
+                    className="font-semibold"
+                    style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
+                  >
+                    {currentMonthInfo.totalTasks}
+                  </span>{' '}
+                  topics complete
+                </span>
+                <span
+                  style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                  className="font-medium text-xs"
+                >
+                  {currentMonthInfo.percentComplete}%
+                </span>
+              </div>
+              <div className="progress-bar-track" style={{ height: '6px' }}>
+                <div
+                  className="progress-bar-fill"
+                  style={{
+                    width: `${currentMonthInfo.percentComplete}%`,
+                    background: 'var(--accent)',
+                    height: '100%',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── CurrentTaskHero — single merged component ── */}
         {taskWithDetails ? (
           <CurrentTaskHero
@@ -170,9 +240,7 @@ export default async function DashboardPage() {
             activeProject={activeProject}
           />
         ) : (
-          <div
-            className="os-surface p-8 text-center space-y-4"
-          >
+          <div className="os-surface p-8 text-center space-y-4">
             <Target className="w-8 h-8 mx-auto" style={{ color: 'var(--text-muted)' }} />
             <div>
               <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
@@ -199,7 +267,7 @@ export default async function DashboardPage() {
         {/* ── Smart Recommendations (session planner + weaknesses) ── */}
         {intel && <SmartRecommendations intelligence={intel as any} />}
 
-        {/* ── Skill Progress (without top 3 — already in right panel) ── */}
+        {/* ── Skill Progress ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="os-surface p-5 space-y-4">
             <div

@@ -3,7 +3,7 @@ import { Header } from '@/components/Header';
 import { getRoadmapOverview } from '@/lib/services/roadmap';
 import { RoadmapTabs } from '@/components/RoadmapTabs';
 import { db } from '@/db';
-import { roadmapTasks, subtasks, taskProgress } from '@/db/schema';
+import { roadmapMonths, roadmapWeeks, roadmapTasks, subtasks, taskProgress } from '@/db/schema';
 import { asc } from 'drizzle-orm';
 
 export const revalidate = 0;
@@ -11,7 +11,8 @@ export const revalidate = 0;
 export default async function RoadmapPage() {
   const months = await getRoadmapOverview();
 
-  // Fetch all tasks with subtasks + progress in one pass
+  // Fetch weeks & tasks with subtasks + progress
+  const allWeeks = await db.select().from(roadmapWeeks).orderBy(asc(roadmapWeeks.weekNumber));
   const allTasks = await db.select().from(roadmapTasks).orderBy(asc(roadmapTasks.orderIndex));
   const allSubtasks = await db.select().from(subtasks);
   const allProgress = await db.select().from(taskProgress);
@@ -23,9 +24,21 @@ export default async function RoadmapPage() {
   });
   const progressMap = new Map(allProgress.map((p) => [p.taskId, p]));
 
-  // Group tasks by monthId → resolve to monthNumber
+  // Map monthId -> monthNumber
   const monthIdToNumber = new Map(months.map((m) => [m.id, m.monthNumber]));
   const tasksByMonth: Record<number, any[]> = {};
+  const weeksByMonth: Record<number, any[]> = {};
+
+  for (const week of allWeeks) {
+    const monthNum = monthIdToNumber.get(week.monthId);
+    if (monthNum === undefined) continue;
+    if (!weeksByMonth[monthNum]) weeksByMonth[monthNum] = [];
+    weeksByMonth[monthNum].push({
+      id: week.id,
+      weekNumber: week.weekNumber,
+      title: week.title,
+    });
+  }
 
   for (const task of allTasks) {
     const monthNum = monthIdToNumber.get(task.monthId);
@@ -33,6 +46,7 @@ export default async function RoadmapPage() {
     if (!tasksByMonth[monthNum]) tasksByMonth[monthNum] = [];
     tasksByMonth[monthNum].push({
       id: task.id,
+      weekId: task.weekId,
       title: task.title,
       priority: task.priority,
       durationLabel: task.durationLabel,
@@ -61,25 +75,42 @@ export default async function RoadmapPage() {
           <div className="flex flex-wrap items-center gap-4 text-xs flex-1">
             <div>
               <span className="section-label block mb-0.5">Daily Commitment</span>
-              <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 500 }}>
+              <span
+                style={{
+                  color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                }}
+              >
                 2–3 hours
               </span>
             </div>
-            <div
-              style={{ width: '1px', height: '28px', background: 'var(--border)' }}
-            />
+            <div style={{ width: '1px', height: '28px', background: 'var(--border)' }} />
             <div>
               <span className="section-label block mb-0.5">Duration</span>
-              <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 500 }}>
+              <span
+                style={{
+                  color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                }}
+              >
                 26 Weeks (~6 Months)
               </span>
             </div>
-            <div
-              style={{ width: '1px', height: '28px', background: 'var(--border)' }}
-            />
+            <div style={{ width: '1px', height: '28px', background: 'var(--border)' }} />
             <div>
               <span className="section-label block mb-0.5">Rest Day</span>
-              <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 500 }}>
+              <span
+                style={{
+                  color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                }}
+              >
                 Sunday
               </span>
             </div>
@@ -88,9 +119,21 @@ export default async function RoadmapPage() {
           {/* Priority legend */}
           <div className="flex items-center gap-3 text-[10px] shrink-0">
             {[
-              { label: 'Master', color: 'var(--priority-master)', bg: 'var(--priority-master-bg)' },
-              { label: 'Important', color: 'var(--priority-important)', bg: 'var(--priority-important-bg)' },
-              { label: 'Basics', color: 'var(--priority-basics)', bg: 'var(--priority-basics-bg)' },
+              {
+                label: 'Master',
+                color: 'var(--priority-master)',
+                bg: 'var(--priority-master-bg)',
+              },
+              {
+                label: 'Important',
+                color: 'var(--priority-important)',
+                bg: 'var(--priority-important-bg)',
+              },
+              {
+                label: 'Basics',
+                color: 'var(--priority-basics)',
+                bg: 'var(--priority-basics-bg)',
+              },
             ].map((p) => (
               <span
                 key={p.label}
@@ -109,8 +152,12 @@ export default async function RoadmapPage() {
           </div>
         </div>
 
-        {/* Tab strip + flat topic list */}
-        <RoadmapTabs months={months as any} tasksByMonth={tasksByMonth} />
+        {/* Tab strip + collapsible week list */}
+        <RoadmapTabs
+          months={months as any}
+          tasksByMonth={tasksByMonth}
+          weeksByMonth={weeksByMonth}
+        />
       </div>
     </div>
   );
