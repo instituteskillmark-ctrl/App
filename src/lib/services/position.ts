@@ -57,13 +57,14 @@ export interface CurrentPositionData {
 }
 
 export async function getCurrentPosition(targetUserId?: string): Promise<CurrentPositionData> {
-  const userId = targetUserId || (await getAuthUserId());
+  try {
+    const userId = targetUserId || (await getAuthUserId());
 
-  // 1. Fetch all months ordered by monthNumber
-  const months = await db
-    .select()
-    .from(roadmapMonths)
-    .orderBy(asc(roadmapMonths.monthNumber));
+    // 1. Fetch all months ordered by monthNumber
+    const months = await db
+      .select()
+      .from(roadmapMonths)
+      .orderBy(asc(roadmapMonths.monthNumber));
 
   // 2. Fetch all weeks ordered by weekNumber
   const weeks = await db
@@ -191,24 +192,47 @@ export async function getCurrentPosition(targetUserId?: string): Promise<Current
       ? Math.round((currentMonthCompleted / currentMonthTasks.length) * 100)
       : 0;
 
-  return {
-    currentMonth,
-    currentWeek,
-    currentTask,
-    nextTask,
-    roadmapProgress: {
-      totalTasks,
-      completedTasksCount,
-      verifiedTasksCount,
-      inProgressTasksCount,
-      percentComplete: roadmapPercent,
-    },
-    currentMonthProgress: {
-      totalTasks: currentMonthTasks.length,
-      completedTasksCount: currentMonthCompleted,
-      verifiedTasksCount: currentMonthVerified,
-      percentComplete: currentMonthPercent,
-    },
-    completionState: 'IN_PROGRESS',
-  };
+    return {
+      currentMonth,
+      currentWeek,
+      currentTask,
+      nextTask,
+      roadmapProgress: {
+        totalTasks,
+        completedTasksCount,
+        verifiedTasksCount,
+        inProgressTasksCount,
+        percentComplete: roadmapPercent,
+      },
+      currentMonthProgress: {
+        totalTasks: currentMonthTasks.length,
+        completedTasksCount: currentMonthCompleted,
+        verifiedTasksCount: currentMonthVerified,
+        percentComplete: currentMonthPercent,
+      },
+      completionState: 'IN_PROGRESS',
+    };
+  } catch (err) {
+    console.error('Error fetching current position:', err);
+    return {
+      currentMonth: null,
+      currentWeek: null,
+      currentTask: null,
+      nextTask: null,
+      roadmapProgress: {
+        totalTasks: 52,
+        completedTasksCount: 0,
+        verifiedTasksCount: 0,
+        inProgressTasksCount: 0,
+        percentComplete: 0,
+      },
+      currentMonthProgress: {
+        totalTasks: 0,
+        completedTasksCount: 0,
+        verifiedTasksCount: 0,
+        percentComplete: 0,
+      },
+      completionState: 'IN_PROGRESS',
+    };
+  }
 }
