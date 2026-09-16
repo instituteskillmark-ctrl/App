@@ -4,18 +4,20 @@ import { getRoadmapOverview } from '@/lib/services/roadmap';
 import { RoadmapTabs } from '@/components/RoadmapTabs';
 import { db } from '@/db';
 import { roadmapMonths, roadmapWeeks, roadmapTasks, subtasks, taskProgress } from '@/db/schema';
-import { asc } from 'drizzle-orm';
+import { getAuthUserId } from '@/lib/supabase/server';
+import { asc, eq } from 'drizzle-orm';
 
 export const revalidate = 0;
 
 export default async function RoadmapPage() {
-  const months = await getRoadmapOverview();
+  const userId = await getAuthUserId();
+  const months = await getRoadmapOverview(userId);
 
   // Fetch weeks & tasks with subtasks + progress
   const allWeeks = await db.select().from(roadmapWeeks).orderBy(asc(roadmapWeeks.weekNumber));
   const allTasks = await db.select().from(roadmapTasks).orderBy(asc(roadmapTasks.orderIndex));
   const allSubtasks = await db.select().from(subtasks);
-  const allProgress = await db.select().from(taskProgress);
+  const allProgress = await db.select().from(taskProgress).where(eq(taskProgress.userId, userId));
 
   const subtaskMap = new Map<string, typeof allSubtasks>();
   allSubtasks.forEach((st) => {
@@ -58,8 +60,8 @@ export default async function RoadmapPage() {
   return (
     <div className="flex-1 pb-16">
       <Header
-        title="Curriculum Roadmap"
-        subtitle="26-Week Journey — From Zero to Junior AI Automation Developer"
+        title="Roadmap"
+        subtitle="29-Week Journey — From Zero to Junior AI Automation Developer"
       />
 
       <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
@@ -97,7 +99,7 @@ export default async function RoadmapPage() {
                   fontWeight: 500,
                 }}
               >
-                26 Weeks (~6 Months)
+                29 Weeks (~6 Months)
               </span>
             </div>
             <div style={{ width: '1px', height: '28px', background: 'var(--border)' }} />

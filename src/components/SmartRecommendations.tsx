@@ -4,7 +4,6 @@ import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { actionGetTimeBlockPlan } from '@/lib/actions/ai-actions';
 import {
-  Compass,
   ArrowRight,
   Clock,
   AlertTriangle,
@@ -54,7 +53,7 @@ export function SmartRecommendations({ intelligence }: SmartRecommendationsProps
     });
   };
 
-  const { whatNext, todaysFocus, confirmedWeaknesses, possibleWeaknesses, relevantProject } = intelligence;
+  const { todaysFocus, confirmedWeaknesses, possibleWeaknesses, relevantProject } = intelligence;
 
   return (
     <div className="space-y-5">
@@ -75,7 +74,7 @@ export function SmartRecommendations({ intelligence }: SmartRecommendationsProps
           >
             <span className="section-label flex items-center gap-1.5">
               <Target className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
-              Today's Focus
+              Today&apos;s Focus
             </span>
             <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
               Curriculum Stage

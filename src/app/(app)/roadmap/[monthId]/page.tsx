@@ -8,6 +8,8 @@ import { notFound } from 'next/navigation';
 import { TopicStatusButton } from '@/components/TopicStatusButton';
 import { ArrowLeft, Clock, Target, CheckSquare, ArrowRight } from 'lucide-react';
 
+import { getAuthUserId } from '@/lib/supabase/server';
+
 export const revalidate = 0;
 
 interface PageProps {
@@ -19,7 +21,8 @@ export default async function MonthDetailPage({ params }: PageProps) {
   const monthNumber = parseInt(resolvedParams.monthId, 10);
   if (isNaN(monthNumber)) return notFound();
 
-  const data = await getMonthDetails(monthNumber);
+  const userId = await getAuthUserId();
+  const data = await getMonthDetails(monthNumber, userId);
   if (!data) return notFound();
 
   const { month, tasks } = data;

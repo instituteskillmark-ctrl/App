@@ -40,11 +40,12 @@ export function Header({ title, subtitle }: HeaderProps) {
           }}
         >
           <Activity className="w-3.5 h-3.5" style={{ color: 'var(--status-completed)' }} />
-          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
-            Phase 1 Active
+          <span className="font-medium text-xs" style={{ color: 'var(--text-primary)' }}>
+            System Operational
           </span>
         </div>
       </div>
     </header>
   );
 }
+

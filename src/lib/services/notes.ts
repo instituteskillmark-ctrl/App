@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { notes } from '@/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 
 export async function getUserNotes(userId: string = 'default_user') {
   try {
@@ -35,9 +35,9 @@ export async function createNote(
   }
 }
 
-export async function deleteNote(id: string) {
+export async function deleteNote(id: string, userId: string = 'default_user') {
   try {
-    await db.delete(notes).where(eq(notes.id, id));
+    await db.delete(notes).where(and(eq(notes.id, id), eq(notes.userId, userId)));
     return { success: true };
   } catch (err) {
     console.error('Error deleting note:', err);

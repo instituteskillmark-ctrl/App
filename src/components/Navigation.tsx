@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Map,
   Target,
-  Bot,
   FolderKanban,
   TrendingUp,
   FileText,
@@ -22,11 +21,10 @@ import {
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Roadmap', href: '/roadmap', icon: Map },
-  { label: "Today's Focus", href: '/today', icon: Target },
-  { label: 'AI Assistant', href: '/assistant', icon: Bot },
+  { label: 'Today', href: '/today', icon: Target },
   { label: 'Projects', href: '/projects', icon: FolderKanban },
-  { label: 'Skill Progress', href: '/progress', icon: TrendingUp },
-  { label: 'Knowledge Notes', href: '/notes', icon: FileText },
+  { label: 'Progress', href: '/progress', icon: TrendingUp },
+  { label: 'Notes', href: '/notes', icon: FileText },
   { label: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -53,20 +51,20 @@ export function Sidebar() {
               Automation Dev OS
             </span>
             <span className="text-[10px] block" style={{ color: 'var(--text-muted)' }}>
-              Personal Learning System
+              Private Personal Learning System
             </span>
           </div>
         </div>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2"
+          className="p-2 transition"
           style={{
             background: 'var(--surface-0)',
             border: '1px solid var(--border)',
             borderRadius: '4px',
             color: 'var(--text-secondary)',
           }}
-          aria-label="Toggle navigation"
+          aria-label="Toggle navigation menu"
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -95,14 +93,14 @@ export function Sidebar() {
               Automation Dev OS
             </h1>
             <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              AI Developer Learning System
+              Private Personal Learning System
             </p>
           </div>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto">
-          <div className="section-label px-3 mb-2">Workspace</div>
+        {/* Navigation Items */}
+        <nav className="flex-1 px-2.5 py-4 space-y-1 overflow-y-auto">
+          <div className="section-label px-3 mb-2">Navigation</div>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
@@ -131,7 +129,7 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Footer */}
+        {/* Sidebar Footer */}
         <div
           className="p-3"
           style={{ borderTop: '1px solid var(--border)', background: 'var(--surface-0)' }}
@@ -165,7 +163,7 @@ export function Sidebar() {
               style={{ borderTop: '1px solid var(--border)', color: 'var(--text-muted)' }}
             >
               <span className="flex items-center gap-1" style={{ fontFamily: 'var(--font-mono)' }}>
-                <Clock className="w-3 h-3" /> 26 Weeks
+                <Clock className="w-3 h-3" /> 29 Weeks
               </span>
               <span style={{ fontFamily: 'var(--font-mono)' }}>2–3 hrs/day</span>
             </div>
@@ -183,3 +181,4 @@ export function Sidebar() {
     </>
   );
 }
+

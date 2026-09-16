@@ -25,3 +25,19 @@ export async function createClient() {
     },
   });
 }
+
+export async function getAuthUserId(): Promise<string> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user?.id) {
+      return user.id;
+    }
+  } catch (err) {
+    console.error('Error fetching auth user ID:', err);
+  }
+  return 'default_user';
+}
+

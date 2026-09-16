@@ -1,6 +1,6 @@
 import { db } from '@/db';
-import { roadmapMonths, roadmapWeeks, roadmapTasks, taskProgress, assessmentAttempts, projects, projectProgress, studySessions } from '@/db/schema';
-import { eq, desc, asc, and, lt } from 'drizzle-orm';
+import { roadmapMonths, roadmapWeeks, roadmapTasks, taskProgress, assessmentAttempts, projects } from '@/db/schema';
+import { eq, desc, asc } from 'drizzle-orm';
 import { calculateStreak } from './streak';
 
 export async function getSmartIntelligence(userId: string = 'default_user') {
@@ -11,7 +11,6 @@ export async function getSmartIntelligence(userId: string = 'default_user') {
     const allProgress = await db.select().from(taskProgress).where(eq(taskProgress.userId, userId));
     const allAttempts = await db.select().from(assessmentAttempts).where(eq(assessmentAttempts.userId, userId)).orderBy(desc(assessmentAttempts.startedAt));
     const allProjects = await db.select().from(projects).orderBy(asc(projects.projectNumber));
-    const allProjectProgress = await db.select().from(projectProgress).where(eq(projectProgress.userId, userId));
     const streakInfo = await calculateStreak(userId);
 
     const progressMap = new Map(allProgress.map(p => [p.taskId, p]));

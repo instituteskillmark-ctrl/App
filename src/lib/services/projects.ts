@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { projects, projectTasks, projectProgress } from '@/db/schema';
+import { projects, projectProgress } from '@/db/schema';
 import { eq, asc, and } from 'drizzle-orm';
 
 export async function getAllProjects(userId: string = 'default_user') {
@@ -42,7 +42,7 @@ export async function updateProjectProgress(
     );
 
     const now = new Date();
-    const updatePayload: any = { ...data, updatedAt: now };
+    const updatePayload: Record<string, unknown> = { ...data, updatedAt: now };
 
     if (data.status === 'IN_PROGRESS' && (!existing[0] || !existing[0].startedAt)) {
       updatePayload.startedAt = now;

@@ -46,8 +46,22 @@ export async function getDashboardStats(userId: string = 'default_user') {
     const verifiedTasks = allTaskProgress.filter((t) => t.status === 'VERIFIED');
     const completedProjects = allProjectProgress.filter((p) => p.status === 'COMPLETED');
 
-    const totalMinutes = allSessions.reduce((acc, curr) => acc + (curr.durationMinutes || 0), 0);
+    const completedSessions = allSessions.filter((s) => s.status === 'COMPLETED');
+    const totalMinutes = completedSessions.reduce((acc, curr) => acc + (curr.durationMinutes || 0), 0);
     const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
+
+    const todayDate = new Date();
+    const todayStr = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
+
+    const todaySessions = completedSessions.filter((s) => {
+      if (!s.startedAt) return false;
+      const d = new Date(s.startedAt);
+      const dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      return dStr === todayStr;
+    });
+
+    const todayMinutes = todaySessions.reduce((acc, curr) => acc + (curr.durationMinutes || 0), 0);
+    const todayHours = Math.round((todayMinutes / 60) * 10) / 10;
 
     // Feature 1: Computed current_month = lowest month number containing at least one topic NOT "VERIFIED"
     const sortedMonths = [...allMonths].sort((a, b) => a.monthNumber - b.monthNumber);
@@ -138,13 +152,20 @@ export async function getDashboardStats(userId: string = 'default_user') {
     }
 
     let currentMonthName = 'Month 1';
+    // Determine current week number from actual DB week data (not an approximation)
     let currentWeekNumber = 1;
 
     if (currentTask) {
       const m = allMonths.find((m) => m.id === currentTask.monthId);
       if (m) {
         currentMonthName = `Month ${m.monthNumber}: ${m.title}`;
-        currentWeekNumber = m.monthNumber * 4; // approximate current week
+        // Use the actual weekNumber from the task's associated week record
+        if (currentTask.weekId) {
+          const taskWeek = allWeeks.find((w) => w.id === currentTask.weekId);
+          if (taskWeek) {
+            currentWeekNumber = taskWeek.weekNumber;
+          }
+        }
       }
     }
 
@@ -178,6 +199,8 @@ export async function getDashboardStats(userId: string = 'default_user') {
       totalProjects: allProjects.length,
       completedProjectsCount: completedProjects.length,
       totalHoursInvested: totalHours,
+      todayMinutes,
+      todayHours,
       currentTask,
       currentMonthName,
       currentWeekNumber,
@@ -190,29 +213,21 @@ export async function getDashboardStats(userId: string = 'default_user') {
     };
   } catch (err) {
     console.error('Error fetching dashboard stats:', err);
+    // Error fallback — DB unavailable. Use 0 for counts so no false data is shown.
     return {
-      totalMonths: 6,
-      totalTasks: 35,
+      totalMonths: 0,
+      totalTasks: 0,
       completedTasksCount: 0,
       verifiedTasksCount: 0,
-      totalProjects: 6,
+      totalProjects: 0,
       completedProjectsCount: 0,
       totalHoursInvested: 0,
+      todayMinutes: 0,
+      todayHours: 0,
       currentTask: null,
       currentMonthName: 'Month 1',
       currentWeekNumber: 1,
-      currentMonthInfo: {
-        id: '',
-        monthNumber: 1,
-        title: 'Automation Thinking + n8n Basics',
-        subtitle: '',
-        keyOutput: '',
-        durationWeeks: '4 weeks',
-        totalTasks: 20,
-        completedTasks: 0,
-        verifiedTasks: 0,
-        percentComplete: 0,
-      },
+      currentMonthInfo: null,
       streak: { currentStreak: 0, longestStreak: 0, activeToday: false },
       recentActivity: [],
       notesCount: 0,

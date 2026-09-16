@@ -46,17 +46,33 @@ export function RoadmapTabs({ months, tasksByMonth, weeksByMonth }: RoadmapTabsP
   const weeks = weeksByMonth[selectedMonth] ?? [];
 
   // Determine default expanded week (first week with unverified topics)
-  const [expandedWeeks, setExpandedWeeks] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    // Group tasks by week to find active week
-    const newExpanded: Record<string, boolean> = {};
-
+  const [expandedWeeks, setExpandedWeeks] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
     let activeWeekFound = false;
     for (const week of weeks) {
       const weekTasks = tasks.filter((t) => t.weekId === week.id);
       const hasUnverified = weekTasks.some((t) => t.progress.status !== 'VERIFIED');
+      if (hasUnverified && !activeWeekFound) {
+        initial[week.id] = true;
+        activeWeekFound = true;
+      } else {
+        initial[week.id] = false;
+      }
+    }
+    if (!activeWeekFound && weeks.length > 0) {
+      initial[weeks[0].id] = true;
+    }
+    return initial;
+  });
 
+  const [lastMonth, setLastMonth] = useState(selectedMonth);
+  if (lastMonth !== selectedMonth) {
+    setLastMonth(selectedMonth);
+    const newExpanded: Record<string, boolean> = {};
+    let activeWeekFound = false;
+    for (const week of weeks) {
+      const weekTasks = tasks.filter((t) => t.weekId === week.id);
+      const hasUnverified = weekTasks.some((t) => t.progress.status !== 'VERIFIED');
       if (hasUnverified && !activeWeekFound) {
         newExpanded[week.id] = true;
         activeWeekFound = true;
@@ -64,14 +80,11 @@ export function RoadmapTabs({ months, tasksByMonth, weeksByMonth }: RoadmapTabsP
         newExpanded[week.id] = false;
       }
     }
-
-    // Fallback: if all weeks are verified or no week matched, expand first week
     if (!activeWeekFound && weeks.length > 0) {
       newExpanded[weeks[0].id] = true;
     }
-
     setExpandedWeeks(newExpanded);
-  }, [selectedMonth, tasks, weeks]);
+  }
 
   const toggleWeek = (weekId: string) => {
     setExpandedWeeks((prev) => ({

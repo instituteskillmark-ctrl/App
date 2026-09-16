@@ -75,8 +75,8 @@ export default async function SettingsPage() {
   return (
     <div className="flex-1 pb-16">
       <Header
-        title="Settings & System Status"
-        subtitle="Database Connection & Environment Health"
+        title="Settings"
+        subtitle="System Health & Application Parameters"
       />
 
       <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-8">
@@ -170,7 +170,7 @@ export default async function SettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
             {[
               { label: 'Daily Commitment', value: '2–3 hours / day', color: 'text-[#f5f7fa]', icon: Clock },
-              { label: 'Curriculum Duration', value: '26 Weeks (~6 Months)', color: 'text-[#f5f7fa]', icon: Calendar },
+              { label: 'Curriculum Duration', value: '29 Weeks (~6 Months)', color: 'text-[#f5f7fa]', icon: Calendar },
               { label: 'Weekly Rest Day', value: 'Sunday (Rest & Recharge)', color: 'text-emerald-400', icon: CheckCircle2 },
               { label: 'Target Outcome', value: 'Junior / Freelance-Ready', color: 'text-emerald-400', icon: Award },
               { label: 'Study Methodology', value: 'Learn → Build → Verify', color: 'text-[#f5f7fa]', icon: BookOpen },
@@ -204,7 +204,7 @@ export default async function SettingsPage() {
             {[
               { cmd: 'npm run dev', desc: 'Start Next.js development server (http://localhost:3000)' },
               { cmd: 'npm run db:migrate', desc: 'Apply Drizzle migrations to database' },
-              { cmd: 'npm run db:seed', desc: 'Seed 26-week curriculum roadmap & initial dataset' },
+              { cmd: 'npm run db:seed', desc: 'Seed 29-week curriculum roadmap & initial dataset' },
               { cmd: 'npm run db:generate', desc: 'Generate new SQL migration files after schema edits' },
               { cmd: 'npm run build', desc: 'Compile production bundle and run type checks' },
             ].map((item) => (

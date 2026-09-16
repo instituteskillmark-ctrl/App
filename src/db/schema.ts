@@ -1,9 +1,10 @@
-import { pgTable, text, integer, timestamp, boolean, uuid, varchar, pgEnum, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, boolean, uuid, pgEnum } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // Enums
 export const priorityEnum = pgEnum('priority_level', ['MASTER', 'IMPORTANT', 'BASICS_ENOUGH']);
-export const topicStatusEnum = pgEnum('topic_status', ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED']);
+export const topicStatusEnum = pgEnum('topic_status', ['NOT_STARTED', 'IN_PROGRESS', 'NEEDS_REVISION', 'COMPLETED', 'VERIFIED']);
+export const taskStageEnum = pgEnum('task_stage', ['LEARN', 'PRACTICE', 'BUILD', 'TEST', 'VERIFY', 'COMPLETE']);
 export const projectStatusEnum = pgEnum('project_status', ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED']);
 export const projectStageEnum = pgEnum('project_stage', ['PLANNING', 'BUILD', 'TESTING', 'DEPLOYMENT', 'DOCUMENTATION', 'COMPLETE']);
 export const milestoneTypeEnum = pgEnum('milestone_type', ['KEY_OUTPUT', 'SUCCESS_CHECKLIST', 'PRO_TIP', 'FINAL_OUTCOME']);
@@ -23,7 +24,7 @@ export const roadmapMonths = pgTable('roadmap_months', {
 export const roadmapWeeks = pgTable('roadmap_weeks', {
   id: uuid('id').defaultRandom().primaryKey(),
   monthId: uuid('month_id').notNull().references(() => roadmapMonths.id, { onDelete: 'cascade' }),
-  weekNumber: integer('week_number').notNull(), // 1 to 26
+  weekNumber: integer('week_number').notNull(), // 1 to 29 (M1:1-4, M2:5-9, M3:10-14, M4:15-18, M5:19-23, M6:24-29)
   title: text('title').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
@@ -50,12 +51,22 @@ export const subtasks = pgTable('subtasks', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// 5. Task Progress (Distinction between COMPLETED and VERIFIED)
+// 5. Subtask Progress
+export const subtaskProgress = pgTable('subtask_progress', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: text('user_id').notNull().default('default_user'),
+  subtaskId: uuid('subtask_id').notNull().references(() => subtasks.id, { onDelete: 'cascade' }),
+  isCompleted: boolean('is_completed').notNull().default(false),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// 6. Task Progress
 export const taskProgress = pgTable('task_progress', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: text('user_id').notNull().default('default_user'),
   taskId: uuid('task_id').notNull().references(() => roadmapTasks.id, { onDelete: 'cascade' }),
   status: topicStatusEnum('status').notNull().default('NOT_STARTED'),
+  currentStage: taskStageEnum('current_stage').notNull().default('LEARN'),
   startedAt: timestamp('started_at'),
   completedAt: timestamp('completed_at'),
   verifiedAt: timestamp('verified_at'),
@@ -156,6 +167,10 @@ export const studySessions = pgTable('study_sessions', {
   startedAt: timestamp('started_at').defaultNow().notNull(),
   endedAt: timestamp('ended_at'),
   durationMinutes: integer('duration_minutes').notNull().default(0),
+  durationSeconds: integer('duration_seconds').notNull().default(0),
+  status: text('status').notNull().default('COMPLETED'), // RUNNING, PAUSED, COMPLETED
+  pausedAt: timestamp('paused_at'),
+  totalPausedSeconds: integer('total_paused_seconds').notNull().default(0),
   sessionType: text('session_type').default('LEARN'), // LEARN, PRACTICE, BUILD, REVIEW
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow().notNull(),

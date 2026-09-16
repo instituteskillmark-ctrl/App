@@ -1,417 +1,334 @@
 import React from 'react';
 import { Header } from '@/components/Header';
+import { getCurrentPosition } from '@/lib/services/position';
 import { getDashboardStats } from '@/lib/services/dashboard';
-import { getRoadmapOverview } from '@/lib/services/roadmap';
-import { getSkillsOverview } from '@/lib/services/skills';
-import { getSmartIntelligence } from '@/lib/services/intelligence';
-import { CurrentTaskHero } from '@/components/CurrentTaskHero';
-import { SmartRecommendations } from '@/components/SmartRecommendations';
+import { getAuthUserId } from '@/lib/supabase/server';
+import { TaskActionButton } from '@/components/TaskActionButton';
+import { PriorityBadge } from '@/components/PriorityBadge';
+import { StatusBadge } from '@/components/StatusBadge';
 import Link from 'next/link';
-import { db } from '@/db';
-import { subtasks, taskProgress, notes } from '@/db/schema';
-import { eq } from 'drizzle-orm';
-import { getAssessmentForTask } from '@/lib/services/assessments';
 import {
-  Flame,
-  Award,
-  Clock,
-  FolderKanban,
   TrendingUp,
-  Activity,
+  Flame,
+  Clock,
   Target,
-  ArrowUpRight,
-  Map,
   ArrowRight,
-  Compass,
+  Sparkles,
+  CheckCircle2,
+  Calendar,
+  Activity,
+  Layers,
 } from 'lucide-react';
 
 export const revalidate = 0;
 
 export default async function DashboardPage() {
-  const stats = await getDashboardStats();
-  await getRoadmapOverview();
-  const skillsList = await getSkillsOverview();
-  const intel = await getSmartIntelligence();
+  const userId = await getAuthUserId();
+  const position = await getCurrentPosition(userId);
+  const stats = await getDashboardStats(userId);
 
-  // Build task with details for CurrentTaskHero
-  let taskWithDetails = null;
-  if (stats.currentTask) {
-    const subtaskItems = await db
-      .select()
-      .from(subtasks)
-      .where(eq(subtasks.taskId, stats.currentTask.id));
-    const [progress] = await db
-      .select()
-      .from(taskProgress)
-      .where(eq(taskProgress.taskId, stats.currentTask.id));
-    const taskNotes = await db
-      .select()
-      .from(notes)
-      .where(eq(notes.taskId, stats.currentTask.id));
-    const assessmentData = await getAssessmentForTask(stats.currentTask.id);
+  const {
+    currentMonth,
+    currentWeek,
+    currentTask,
+    nextTask,
+    roadmapProgress,
+    currentMonthProgress,
+    completionState,
+  } = position;
 
-    taskWithDetails = {
-      ...stats.currentTask,
-      monthName: stats.currentMonthName,
-      subtasks: subtaskItems,
-      progress: progress || { status: 'NOT_STARTED' as const },
-      assessment: assessmentData,
-      notes: taskNotes,
-    };
-  }
-
-  const topSkills = skillsList
-    .slice(0, 3)
-    .map((s) => ({ category: s.category, proficiencyPercent: s.proficiencyPercent }));
-
-  const activeProject = intel?.relevantProject
-    ? {
-        title: intel.relevantProject.title,
-        description: intel.relevantProject.description,
-        techStack: intel.relevantProject.techStack,
-        projectNumber: intel.relevantProject.projectNumber,
-      }
-    : undefined;
-
-  const currentMonthInfo = stats.currentMonthInfo;
+  const isComplete = completionState === 'ROADMAP_COMPLETE';
 
   return (
     <div className="flex-1 pb-16">
-      <Header title="Dashboard" subtitle="AI Automation Developer Learning System" />
+      <Header title="Dashboard" subtitle="Personal Learning System — What should I do right now?" />
 
-      <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
-        {/* Metric Overview Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {[
-            {
-              label: 'Progress',
-              value: `${stats.overallProgressPercent}%`,
-              sub: `${stats.completedTasksCount}/${stats.totalTasks} topics`,
-              icon: TrendingUp,
-              accentColor: 'var(--status-completed)',
-            },
-            {
-              label: 'Streak',
-              value: `${stats.streak.currentStreak}`,
-              unit: 'days',
-              sub: stats.streak.activeToday ? 'Active today' : 'Pending today',
-              icon: Flame,
-              accentColor: 'var(--priority-important)',
-            },
-            {
-              label: 'Verified Skills',
-              value: `${stats.verifiedTasksCount}`,
-              sub: 'Quiz passed',
-              icon: Award,
-              accentColor: 'var(--status-completed)',
-            },
-            {
-              label: 'Focus Hours',
-              value: `${stats.totalHoursInvested}`,
-              unit: 'hrs',
-              sub: 'Logged sessions',
-              icon: Clock,
-              accentColor: 'var(--text-muted)',
-            },
-            {
-              label: 'Projects',
-              value: `${stats.completedProjectsCount}/${stats.totalProjects}`,
-              sub: 'Roadmap portfolio',
-              icon: FolderKanban,
-              accentColor: 'var(--accent)',
-              href: '/projects',
-            },
-          ].map((tile) => {
-            const Icon = tile.icon;
-            const card = (
-              <div
-                key={tile.label}
-                className="os-surface os-surface-hover p-4 flex flex-col justify-between gap-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="section-label">{tile.label}</span>
-                  <Icon className="w-3.5 h-3.5" style={{ color: tile.accentColor }} />
-                </div>
-                <div
-                  className="text-2xl font-medium leading-none"
-                  style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
-                >
-                  {tile.value}
-                  {tile.unit && (
-                    <span
-                      className="text-xs ml-1"
-                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
-                    >
-                      {tile.unit}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                    {tile.sub}
-                  </span>
-                  {tile.href && (
-                    <ArrowUpRight className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
-                  )}
-                </div>
-              </div>
-            );
-            return tile.href ? (
-              <Link key={tile.label} href={tile.href} className="block">
-                {card}
-              </Link>
-            ) : (
-              <div key={tile.label}>{card}</div>
-            );
-          })}
+      <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+        
+        {/* ── TOP METRIC SUMMARY BAR ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="os-surface p-4 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="section-label">Roadmap Progress</span>
+              <TrendingUp className="w-3.5 h-3.5" style={{ color: 'var(--status-completed)' }} />
+            </div>
+            <div className="text-2xl font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+              {roadmapProgress.percentComplete}%
+            </div>
+            <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              {roadmapProgress.completedTasksCount} of {roadmapProgress.totalTasks} topics done
+            </div>
+          </div>
+
+          <div className="os-surface p-4 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="section-label">Current Month</span>
+              <Calendar className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+            </div>
+            <div className="text-2xl font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+              {currentMonthProgress.percentComplete}%
+            </div>
+            <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              {currentMonth ? `Month ${currentMonth.monthNumber}: ${currentMonthProgress.completedTasksCount}/${currentMonthProgress.totalTasks}` : 'Roadmap Complete'}
+            </div>
+          </div>
+
+          <div className="os-surface p-4 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="section-label">Current Streak</span>
+              <Flame className="w-3.5 h-3.5" style={{ color: 'var(--priority-important)' }} />
+            </div>
+            <div className="text-2xl font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+              {stats.streak.currentStreak} <span className="text-xs" style={{ color: 'var(--text-muted)' }}>days</span>
+            </div>
+            <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              {stats.streak.activeToday ? 'Active today' : 'Pending today'}
+            </div>
+          </div>
+
+          <div className="os-surface p-4 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="section-label">Study Time</span>
+              <Clock className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
+            </div>
+            <div className="text-2xl font-medium" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+              {stats.totalHoursInvested} <span className="text-xs" style={{ color: 'var(--text-muted)' }}>hrs</span>
+            </div>
+            <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              Logged focus sessions
+            </div>
+          </div>
         </div>
 
-        {/* ── Feature 1: Computed Current Month Tracker Card ── */}
-        {currentMonthInfo && (
-          <div className="os-surface p-5 relative overflow-hidden">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex-1 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <div className="section-label flex items-center gap-1.5 mb-1">
-                      <Map className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
-                      AUTO-TRACKED CURRENT MONTH
-                    </div>
-                    <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      MONTH {currentMonthInfo.monthNumber} / 6 — {currentMonthInfo.title}
-                    </h3>
-                  </div>
-                  <Link
-                    href="/roadmap"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 transition shrink-0 self-start sm:self-center"
-                    style={{
-                      background: 'var(--surface-1)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '4px',
-                      color: 'var(--text-secondary)',
-                    }}
-                  >
-                    Go to Roadmap <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span style={{ color: 'var(--text-secondary)' }}>
-                      <span
-                        className="font-semibold"
-                        style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
-                      >
-                        {currentMonthInfo.completedTasks}
-                      </span>{' '}
-                      of{' '}
-                      <span
-                        className="font-semibold"
-                        style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}
-                      >
-                        {currentMonthInfo.totalTasks}
-                      </span>{' '}
-                      topics complete
-                    </span>
-                    <span
-                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
-                      className="font-medium text-xs"
-                    >
-                      {currentMonthInfo.percentComplete}%
-                    </span>
-                  </div>
-                  <div className="progress-bar-track" style={{ height: '6px' }}>
-                    <div
-                      className="progress-bar-fill"
-                      style={{
-                        width: `${currentMonthInfo.percentComplete}%`,
-                        background: 'var(--accent)',
-                        height: '100%',
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Minimal line-art graphic badge (Lucide Compass icon) */}
-              <div
-                className="hidden md:flex items-center justify-center shrink-0 w-10 h-10 rounded-md border"
-                style={{
-                  background: 'var(--surface-1)',
-                  borderColor: 'var(--border)',
-                }}
-                aria-hidden="true"
-              >
-                <Compass className="w-5 h-5" style={{ color: 'var(--accent)' }} />
-              </div>
+        {/* ── 1. TODAY'S MISSION (VISUAL CENTER HERO) ── */}
+        {isComplete ? (
+          <div className="os-surface p-8 lg:p-12 text-center space-y-4 border border-emerald-500/30 bg-emerald-950/10">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-6 h-6 text-emerald-400" />
             </div>
-          </div>
-        )}
-
-        {/* ── CurrentTaskHero — single merged component ── */}
-        {taskWithDetails ? (
-          <CurrentTaskHero
-            task={taskWithDetails as any}
-            stats={stats}
-            topSkills={topSkills}
-            activeProject={activeProject}
-          />
-        ) : (
-          <div className="os-surface p-8 text-center space-y-4">
-            <Target className="w-8 h-8 mx-auto" style={{ color: 'var(--text-muted)' }} />
-            <div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-                No active topic selected
-              </p>
-              <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
-                Choose a topic from your roadmap to start today's learning session.
-              </p>
-            </div>
-            <Link
-              href="/roadmap"
-              className="inline-flex items-center gap-2 px-5 py-2 text-xs font-semibold transition"
-              style={{
-                background: 'var(--accent)',
-                color: '#fff',
-                borderRadius: '4px',
-              }}
-            >
-              Explore Roadmap
-            </Link>
-          </div>
-        )}
-
-        {/* ── Smart Recommendations (session planner + weaknesses) ── */}
-        {intel && <SmartRecommendations intelligence={intel as any} />}
-
-        {/* ── Skill Progress ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="os-surface p-5 space-y-4">
-            <div
-              className="flex items-center justify-between pb-3"
-              style={{ borderBottom: '1px solid var(--border)' }}
-            >
-              <span className="section-label flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
-                Skill Progress
+            <div className="space-y-1">
+              <span className="section-label text-emerald-400 font-mono tracking-widest uppercase">
+                ROADMAP COMPLETE
               </span>
+              <h3 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                All 52 Roadmap Tasks Completed!
+              </h3>
+              <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
+                Congratulations! You have completed all 6 months and 29 weeks of the AI Automation Developer OS curriculum.
+              </p>
+            </div>
+            <div className="pt-2 flex justify-center gap-3">
+              <Link
+                href="/projects"
+                className="px-5 py-2.5 text-xs font-semibold rounded bg-[#7f77dd] text-white hover:bg-[#6c64c7] transition"
+              >
+                Review Projects Portfolio
+              </Link>
               <Link
                 href="/progress"
-                className="flex items-center gap-1 text-[10px] font-semibold transition"
-                style={{ color: 'var(--text-secondary)' }}
+                className="px-5 py-2.5 text-xs font-semibold rounded border border-[#26262a] text-[#f2f2f0] hover:bg-[#141416] transition"
               >
-                View All <ArrowUpRight className="w-3 h-3" />
+                View Skill Matrix
               </Link>
             </div>
-            <div className="space-y-3">
-              {skillsList.map((sk) => (
-                <div key={sk.id} className="space-y-1.5">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                      {sk.category}
-                    </span>
-                    <span
-                      className="text-[10px] font-medium"
-                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
-                    >
-                      {sk.proficiencyPercent}%
-                    </span>
-                  </div>
-                  <div className="progress-bar-track">
-                    <div
-                      className="progress-bar-fill"
-                      style={{
-                        width: `${sk.proficiencyPercent}%`,
-                        background: 'var(--accent)',
-                      }}
-                    />
-                  </div>
-                  <div
-                    className="flex justify-between text-[10px]"
-                    style={{ color: 'var(--text-muted)' }}
+          </div>
+        ) : currentTask ? (
+          <div className="os-surface p-6 lg:p-8 relative overflow-hidden space-y-6 border-l-4 border-l-[#7f77dd]">
+            
+            {/* Header / Location Breadcrumb */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded"
+                    style={{ background: 'var(--accent-bg)', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}
                   >
-                    <span style={{ fontFamily: 'var(--font-mono)' }}>
-                      {sk.completedTasks}/{sk.totalTasks} topics
-                    </span>
-                    <span style={{ fontFamily: 'var(--font-mono)' }}>
-                      {sk.verifiedTasks} verified
+                    TODAY'S MISSION
+                  </span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    • Month {currentMonth?.monthNumber} / 6
+                  </span>
+                </div>
+                <h3 className="text-xl lg:text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                  {currentTask.title}
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <PriorityBadge priority={currentTask.priority} />
+                <StatusBadge status={currentTask.status} />
+              </div>
+            </div>
+
+            {/* Context Meta Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-3 rounded bg-[var(--surface-0)] border border-[var(--border)] space-y-1">
+                <span className="text-[10px] uppercase font-mono tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+                  Current Month
+                </span>
+                <span className="text-xs font-semibold block truncate" style={{ color: 'var(--text-primary)' }}>
+                  Month {currentMonth?.monthNumber}: {currentMonth?.title}
+                </span>
+              </div>
+
+              <div className="p-3 rounded bg-[var(--surface-0)] border border-[var(--border)] space-y-1">
+                <span className="text-[10px] uppercase font-mono tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+                  Current Week
+                </span>
+                <span className="text-xs font-semibold block truncate" style={{ color: 'var(--text-primary)' }}>
+                  {currentWeek?.title || `Week ${currentTask.weekId}`}
+                </span>
+              </div>
+
+              <div className="p-3 rounded bg-[var(--surface-0)] border border-[var(--border)] space-y-1">
+                <span className="text-[10px] uppercase font-mono tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+                  Estimated Time
+                </span>
+                <span className="text-xs font-semibold font-mono block truncate" style={{ color: 'var(--text-primary)' }}>
+                  {currentTask.durationLabel || '1 day'} (~2–3 hrs)
+                </span>
+              </div>
+            </div>
+
+            {/* Task Description (What To Do) */}
+            <div className="space-y-2">
+              <span className="section-label flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+                WHAT TO DO
+              </span>
+              <p className="text-xs leading-relaxed max-w-3xl" style={{ color: 'var(--text-secondary)' }}>
+                {currentTask.description}
+              </p>
+            </div>
+
+            {/* Primary Action Button (START TASK or CONTINUE TASK) */}
+            <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <TaskActionButton taskId={currentTask.id} status={currentTask.status} size="large" />
+
+              <Link
+                href="/roadmap"
+                className="text-xs flex items-center gap-1 transition"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <span>View Full 29-Week Roadmap</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+          </div>
+        ) : null}
+
+        {/* ── 2. CURRENT MONTH PROGRESS & NEXT TASK ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Current Month Progress Bar & Breakdown */}
+          {currentMonth && (
+            <div className="lg:col-span-2 os-surface p-5 space-y-4">
+              <div className="flex items-center justify-between pb-3" style={{ borderBottom: '1px solid var(--border)' }}>
+                <span className="section-label flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+                  Current Month Breakdown — Month {currentMonth.monthNumber}
+                </span>
+                <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
+                  {currentMonth.durationWeeks}
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    <span className="font-semibold text-white font-mono">{currentMonthProgress.completedTasksCount}</span> of{' '}
+                    <span className="font-semibold text-white font-mono">{currentMonthProgress.totalTasks}</span> topics completed
+                  </span>
+                  <span className="font-mono text-xs text-[#a3a3a8]">{currentMonthProgress.percentComplete}%</span>
+                </div>
+                <div className="progress-bar-track" style={{ height: '6px' }}>
+                  <div
+                    className="progress-bar-fill"
+                    style={{ width: `${currentMonthProgress.percentComplete}%`, background: 'var(--accent)', height: '100%' }}
+                  />
+                </div>
+              </div>
+
+              {currentMonth.keyOutput && (
+                <div className="p-3 rounded bg-[var(--surface-0)] border border-[var(--border)] text-xs space-y-1">
+                  <span className="section-label block text-[10px]">Month Key Output</span>
+                  <span className="font-medium text-white block">{currentMonth.keyOutput}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Next Task (Informational Card) */}
+          <div className="os-surface p-5 space-y-3">
+            <div className="flex items-center justify-between pb-3" style={{ borderBottom: '1px solid var(--border)' }}>
+              <span className="section-label flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
+                Next Task in Roadmap
+              </span>
+            </div>
+
+            {nextTask ? (
+              <div className="space-y-2.5 pt-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold block text-white truncate">{nextTask.title}</span>
+                  <PriorityBadge priority={nextTask.priority} />
+                </div>
+                <p className="text-[11px] line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+                  {nextTask.description}
+                </p>
+                <div className="flex items-center justify-between text-[10px] pt-2" style={{ borderTop: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                  <span>Duration: {nextTask.durationLabel || '1 day'}</span>
+                  <span>Sequential Task #{nextTask.orderIndex}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-center py-4" style={{ color: 'var(--text-muted)' }}>
+                {isComplete ? 'All 52 tasks completed!' : 'Current task is the final task in this section.'}
+              </p>
+            )}
+          </div>
+
+        </div>
+
+        {/* ── 3. RECENT ACTIVITY FEED ── */}
+        <div className="os-surface p-5 space-y-4">
+          <div className="flex items-center justify-between pb-3" style={{ borderBottom: '1px solid var(--border)' }}>
+            <span className="section-label flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+              Recent Activity Log
+            </span>
+            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              Real User Activity
+            </span>
+          </div>
+
+          {stats.recentActivity.length > 0 ? (
+            <div className="space-y-2">
+              {stats.recentActivity.map((act, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 rounded bg-[var(--surface-0)] border border-[var(--border)] text-xs"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-2 h-2 rounded-full" style={{ background: 'var(--accent)' }} />
+                    <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                      {act.title}
                     </span>
                   </div>
+                  <span className="text-[10px] font-mono shrink-0" style={{ color: 'var(--text-muted)' }}>
+                    {act.time}
+                  </span>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="os-surface p-5 space-y-4">
-            <div
-              className="flex items-center justify-between pb-3"
-              style={{ borderBottom: '1px solid var(--border)' }}
-            >
-              <span className="section-label flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
-                Recent Activity
-              </span>
-              <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                Session history
-              </span>
+          ) : (
+            <div className="py-6 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
+              No learning activity recorded yet. Click <strong className="text-white">START TASK</strong> on Today's Mission to begin!
             </div>
-
-            {stats.recentActivity.length === 0 ? (
-              <div
-                className="py-10 text-center text-xs"
-                style={{
-                  color: 'var(--text-muted)',
-                  border: '1px dashed var(--border)',
-                  borderRadius: '4px',
-                }}
-              >
-                <Clock className="w-5 h-5 mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
-                <p className="font-medium" style={{ color: 'var(--text-secondary)' }}>
-                  No activity yet
-                </p>
-                <p className="mt-0.5">Complete a topic or log a focus session.</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {stats.recentActivity.map((act, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between px-3 py-2 os-surface-hover transition"
-                    style={{
-                      background: 'var(--surface-0)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '4px',
-                    }}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {act.type === 'TASK' ? (
-                        <Target
-                          className="w-3.5 h-3.5 shrink-0"
-                          style={{ color: 'var(--status-completed)' }}
-                        />
-                      ) : (
-                        <Clock
-                          className="w-3.5 h-3.5 shrink-0"
-                          style={{ color: 'var(--text-muted)' }}
-                        />
-                      )}
-                      <span className="text-xs" style={{ color: 'var(--text-primary)' }}>
-                        {act.title}
-                      </span>
-                    </div>
-                    <span
-                      className="text-[10px] shrink-0 ml-2"
-                      style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
-                    >
-                      {act.time}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          )}
         </div>
+
       </div>
     </div>
   );

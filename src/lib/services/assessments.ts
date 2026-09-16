@@ -1,6 +1,6 @@
 import { db } from '@/db';
-import { assessments, assessmentQuestions, assessmentAttempts, taskProgress } from '@/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { assessments, assessmentQuestions, assessmentAttempts } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 import { updateTaskStatus } from './roadmap';
 
 export async function getAssessmentForTask(taskId: string) {
@@ -71,9 +71,11 @@ export async function submitAssessmentAttempt(data: {
       })
       .returning();
 
-    // If passed, upgrade topic status to VERIFIED
+    // If passed, upgrade topic status to VERIFIED, otherwise mark NEEDS_REVISION
     if (passed) {
       await updateTaskStatus(data.taskId, 'VERIFIED', userId);
+    } else {
+      await updateTaskStatus(data.taskId, 'NEEDS_REVISION', userId);
     }
 
     return {

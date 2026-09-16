@@ -4,7 +4,8 @@ import { getDashboardStats } from '@/lib/services/dashboard';
 import { CurrentTaskHero } from '@/components/CurrentTaskHero';
 import { db } from '@/db';
 import { subtasks, taskProgress, notes } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { getAuthUserId } from '@/lib/supabase/server';
+import { eq, and } from 'drizzle-orm';
 import Link from 'next/link';
 import { getAssessmentForTask } from '@/lib/services/assessments';
 import {
@@ -22,14 +23,21 @@ import {
 export const revalidate = 0;
 
 export default async function TodayPage() {
-  const stats = await getDashboardStats();
+  const userId = await getAuthUserId();
+  const stats = await getDashboardStats(userId);
 
   let targetTaskWithDetails = null;
 
   if (stats.currentTask) {
     const subtaskItems = await db.select().from(subtasks).where(eq(subtasks.taskId, stats.currentTask.id));
-    const [progress] = await db.select().from(taskProgress).where(eq(taskProgress.taskId, stats.currentTask.id));
-    const taskNotes = await db.select().from(notes).where(eq(notes.taskId, stats.currentTask.id));
+    const [progress] = await db
+      .select()
+      .from(taskProgress)
+      .where(and(eq(taskProgress.taskId, stats.currentTask.id), eq(taskProgress.userId, userId)));
+    const taskNotes = await db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.taskId, stats.currentTask.id), eq(notes.userId, userId)));
     const assessmentData = await getAssessmentForTask(stats.currentTask.id);
 
     targetTaskWithDetails = {
@@ -54,7 +62,7 @@ export default async function TodayPage() {
 
   return (
     <div className="flex-1 pb-16">
-      <Header title="Today's Focus" subtitle="Daily Execution & Active Learning Task" />
+      <Header title="Today" subtitle="Daily Learning Workspace & Active Execution" />
 
       <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
         {/* ── Single merged CurrentTaskHero component ── */}
@@ -70,7 +78,7 @@ export default async function TodayPage() {
                 No active topic selected
               </h3>
               <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
-                Choose a topic from your 26-week roadmap to activate today's learning workspace.
+                Choose a topic from your 29-week roadmap to activate today's learning workspace.
               </p>
             </div>
             <Link

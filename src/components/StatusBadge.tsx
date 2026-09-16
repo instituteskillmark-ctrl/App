@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckCircle2, Clock, Check, Circle } from 'lucide-react';
 
-type Status = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'VERIFIED';
+type Status = 'NOT_STARTED' | 'IN_PROGRESS' | 'NEEDS_REVISION' | 'COMPLETED' | 'VERIFIED';
 
 interface StatusBadgeProps {
   status: Status;
@@ -38,6 +38,16 @@ export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
         >
           <Clock className="w-3 h-3" />
           In Progress
+        </span>
+      );
+    case 'NEEDS_REVISION':
+      return (
+        <span
+          className={`status-pill inline-flex items-center gap-1.5 ${className}`}
+          style={{ background: 'rgba(226,75,74,0.15)', color: 'var(--priority-master)' }}
+        >
+          <Clock className="w-3 h-3" />
+          Needs Revision
         </span>
       );
     case 'NOT_STARTED':
