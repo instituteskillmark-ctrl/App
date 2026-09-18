@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, boolean, uuid, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, boolean, uuid, pgEnum, uniqueIndex } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // Enums
@@ -58,7 +58,9 @@ export const subtaskProgress = pgTable('subtask_progress', {
   subtaskId: uuid('subtask_id').notNull().references(() => subtasks.id, { onDelete: 'cascade' }),
   isCompleted: boolean('is_completed').notNull().default(false),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  userSubtaskIdx: uniqueIndex('subtask_progress_user_subtask_idx').on(table.userId, table.subtaskId),
+}));
 
 // 6. Task Progress
 export const taskProgress = pgTable('task_progress', {
@@ -72,7 +74,9 @@ export const taskProgress = pgTable('task_progress', {
   verifiedAt: timestamp('verified_at'),
   notes: text('notes'),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  userTaskIdx: uniqueIndex('task_progress_user_task_idx').on(table.userId, table.taskId),
+}));
 
 // 6. Projects
 export const projects = pgTable('projects', {
@@ -109,7 +113,9 @@ export const projectProgress = pgTable('project_progress', {
   completedAt: timestamp('completed_at'),
   notes: text('notes'),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  userProjectIdx: uniqueIndex('project_progress_user_project_idx').on(table.userId, table.projectId),
+}));
 
 // 9. Assessments
 export const assessments = pgTable('assessments', {

@@ -111,6 +111,14 @@ export async function updateTaskStatus(
       .from(taskProgress)
       .where(and(eq(taskProgress.taskId, taskId), eq(taskProgress.userId, userId)));
 
+    // Guard: Prevent direct transition from NOT_STARTED to VERIFIED without completing execution/verification
+    if (status === 'VERIFIED') {
+      const currentStat = existing[0]?.status || 'NOT_STARTED';
+      if (currentStat === 'NOT_STARTED') {
+        return { success: false, error: 'Cannot directly mark a NOT_STARTED task as VERIFIED.' };
+      }
+    }
+
     const now = new Date();
     const updateData: Record<string, unknown> = {
       status,

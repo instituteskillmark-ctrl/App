@@ -10,6 +10,7 @@ import {
   notes,
 } from '@/db/schema';
 import { calculateStreak } from './streak';
+import { getCurrentPosition } from './position';
 import { desc, eq } from 'drizzle-orm';
 
 export async function getDashboardStats(userId: string = 'default_user') {
@@ -37,8 +38,7 @@ export async function getDashboardStats(userId: string = 'default_user') {
       .orderBy(desc(notes.updatedAt));
 
     const streakInfo = await calculateStreak(userId);
-
-    const progressMap = new Map(allTaskProgress.map((p) => [p.taskId, p]));
+    const position = await getCurrentPosition(userId);
 
     const completedTasks = allTaskProgress.filter(
       (t) => t.status === 'COMPLETED' || t.status === 'VERIFIED'
@@ -63,111 +63,33 @@ export async function getDashboardStats(userId: string = 'default_user') {
     const todayMinutes = todaySessions.reduce((acc, curr) => acc + (curr.durationMinutes || 0), 0);
     const todayHours = Math.round((todayMinutes / 60) * 10) / 10;
 
-    // Feature 1: Computed current_month = lowest month number containing at least one topic NOT "VERIFIED"
-    const sortedMonths = [...allMonths].sort((a, b) => a.monthNumber - b.monthNumber);
-
-    let computedCurrentMonth = sortedMonths[0];
-    for (const m of sortedMonths) {
-      const mTasks = allTasks.filter((t) => t.monthId === m.id);
-      const hasUnverified = mTasks.some((t) => {
-        const p = progressMap.get(t.id);
-        return !p || p.status !== 'VERIFIED';
-      });
-      if (hasUnverified) {
-        computedCurrentMonth = m;
-        break;
-      }
-    }
-    if (!computedCurrentMonth && sortedMonths.length > 0) {
-      computedCurrentMonth = sortedMonths[sortedMonths.length - 1];
-    }
-
-    const currentMonthTasks = computedCurrentMonth
-      ? allTasks.filter((t) => t.monthId === computedCurrentMonth.id)
-      : [];
-
-    const weekMap = new Map(allWeeks.map((w) => [w.id, w.weekNumber]));
-
-    currentMonthTasks.sort((a, b) => {
-      const weekA = a.weekId ? (weekMap.get(a.weekId) ?? 0) : 0;
-      const weekB = b.weekId ? (weekMap.get(b.weekId) ?? 0) : 0;
-      if (weekA !== weekB) return weekA - weekB;
-      return a.orderIndex - b.orderIndex;
-    });
-
-    const currentMonthCompletedCount = currentMonthTasks.filter((t) => {
-      const p = progressMap.get(t.id);
-      return p?.status === 'COMPLETED' || p?.status === 'VERIFIED';
-    }).length;
-    const currentMonthVerifiedCount = currentMonthTasks.filter((t) => {
-      const p = progressMap.get(t.id);
-      return p?.status === 'VERIFIED';
-    }).length;
-
-    const currentMonthInfo = computedCurrentMonth
-      ? {
-          id: computedCurrentMonth.id,
-          monthNumber: computedCurrentMonth.monthNumber,
-          title: computedCurrentMonth.title,
-          subtitle: computedCurrentMonth.subtitle,
-          keyOutput: computedCurrentMonth.keyOutput,
-          durationWeeks: computedCurrentMonth.durationWeeks,
-          totalTasks: currentMonthTasks.length,
-          completedTasks: currentMonthCompletedCount,
-          verifiedTasks: currentMonthVerifiedCount,
-          percentComplete:
-            currentMonthTasks.length > 0
-              ? Math.round((currentMonthCompletedCount / currentMonthTasks.length) * 100)
-              : 0,
-        }
+    // Use single source of truth from shared position service
+    const currentTask = position.currentTask
+      ? allTasks.find((t) => t.id === position.currentTask!.id) || null
       : null;
 
-    // Scope active or next task selection strictly to current (lowest incomplete) month
-    let currentTask = null;
+    const currentMonthName = position.currentMonth
+      ? `Month ${position.currentMonth.monthNumber}: ${position.currentMonth.title}`
+      : 'Month 1';
 
-    if (currentMonthTasks.length > 0) {
-      // Priority 1: Topic already "IN_PROGRESS" in current month
-      currentTask = currentMonthTasks.find((t) => {
-        const p = progressMap.get(t.id);
-        return p?.status === 'IN_PROGRESS';
-      }) || null;
+    const currentWeekNumber = position.currentWeek
+      ? position.currentWeek.weekNumber
+      : 1;
 
-      // Priority 2: First "NOT_STARTED" topic in current month (in week/topic order)
-      if (!currentTask) {
-        currentTask = currentMonthTasks.find((t) => {
-          const p = progressMap.get(t.id);
-          return !p || p.status === 'NOT_STARTED';
-        }) || null;
-      }
-
-      // Priority 3 / Fallback: Pick first unverified or first topic in current month
-      if (!currentTask) {
-        currentTask = currentMonthTasks.find((t) => {
-          const p = progressMap.get(t.id);
-          return p?.status !== 'VERIFIED';
-        }) || currentMonthTasks[0];
-      }
-    } else if (allTasks.length > 0) {
-      currentTask = allTasks[0];
-    }
-
-    let currentMonthName = 'Month 1';
-    // Determine current week number from actual DB week data (not an approximation)
-    let currentWeekNumber = 1;
-
-    if (currentTask) {
-      const m = allMonths.find((m) => m.id === currentTask.monthId);
-      if (m) {
-        currentMonthName = `Month ${m.monthNumber}: ${m.title}`;
-        // Use the actual weekNumber from the task's associated week record
-        if (currentTask.weekId) {
-          const taskWeek = allWeeks.find((w) => w.id === currentTask.weekId);
-          if (taskWeek) {
-            currentWeekNumber = taskWeek.weekNumber;
-          }
+    const currentMonthInfo = position.currentMonth
+      ? {
+          id: position.currentMonth.id,
+          monthNumber: position.currentMonth.monthNumber,
+          title: position.currentMonth.title,
+          subtitle: position.currentMonth.subtitle,
+          keyOutput: position.currentMonth.keyOutput,
+          durationWeeks: position.currentMonth.durationWeeks,
+          totalTasks: position.currentMonthProgress.totalTasks,
+          completedTasks: position.currentMonthProgress.completedTasksCount,
+          verifiedTasks: position.currentMonthProgress.verifiedTasksCount,
+          percentComplete: position.currentMonthProgress.percentComplete,
         }
-      }
-    }
+      : null;
 
     // Recent Activity feed
     const recentActivity: { title: string; time: string; type: string }[] = [];
